@@ -13,28 +13,28 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct deepc_matrix {
     float* data;
     int num_rows;
     int num_cols;
 } deepc_matrix;
 
-int deepc_initialize_matrix(deepc_matrix* mat, int num_rows, int num_cols);
-void deepc_deinitialize_matrix(deepc_matrix* mat);
+int deepc_initialize_matrix(deepc_matrix* matrix, int num_rows, int num_cols);
+void deepc_deinitialize_matrix(deepc_matrix* matrix);
 
-// deepc_matrix deepc_copy_matrix(deepc_matrix src);
+deepc_matrix deepc_copy_matrix(deepc_matrix matrix);
 
 deepc_matrix deepc_zeros_matrix(int num_rows, int num_cols);
 deepc_matrix deepc_ones_matrix(int num_rows, int num_cols);
 
 deepc_matrix deepc_rand_matrix(int num_rows, int num_cols);
-void deepc_print_matrix(deepc_matrix mat);
+void deepc_print_matrix(deepc_matrix matrix);
 
-deepc_matrix deepc_matrix_row(deepc_matrix mat, int row_pos);
-deepc_matrix deepc_matrix_col(deepc_matrix mat, int col_pos);
+deepc_matrix deepc_matrix_row(deepc_matrix matrix, int row_pos);
+deepc_matrix deepc_matrix_col(deepc_matrix matrix, int col_pos);
 
-void deepc_set_row(deepc_matrix mat, int row_pos, float* row);
-void deepc_set_col(deepc_matrix mat, int col_pos, float* col);
+void deepc_set_row(deepc_matrix matrix, int row_pos, float* row);
+void deepc_set_col(deepc_matrix matrix, int col_pos, float* col);
 
 deepc_matrix deepc_add(deepc_matrix lhs, deepc_matrix rhs);
 deepc_matrix deepc_subtract(deepc_matrix lhs, deepc_matrix rhs);

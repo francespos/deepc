@@ -13,27 +13,33 @@
 extern "C" {
 #endif
 
-deepc_matrix deepc_load_csv(const char* filename, bool has_header);
+int deepc_count_columns(const char* line);
+void deepc_trim_whitespace(char* str);
 
-void deepc_fill_missing_with_mean(deepc_matrix* mat);
-void deepc_fill_missing_with_zeros(deepc_matrix* mat);
+int deepc_load_csv(deepc_matrix* dest, const char* filename, bool has_header);
+int deepc_count_missing_values(deepc_matrix matrix);
 
-size_t deepc_count_missing_values(deepc_matrix mat);
-void deepc_print_matrix_stats(deepc_matrix mat);
+void deepc_fill_missing_with_mean(deepc_matrix* matrix);
+void deepc_fill_missing_with_zeros(deepc_matrix* matrix);
 
-void deepc_train_test_split(deepc_matrix x, deepc_matrix y, float test_size, 
+void deepc_print_matrix_stats(deepc_matrix matrix);
+
+int deepc_train_test_split(deepc_matrix x, deepc_matrix y, float test_size, 
     deepc_matrix* x_train, deepc_matrix* x_test, 
     deepc_matrix* y_train, deepc_matrix* y_test);
 
-deepc_matrix deepc_split_features_labels(deepc_matrix mat, size_t label_column);
+int deepc_split_features_labels(deepc_matrix* dest, deepc_matrix data, 
+    int label_column);
 
-deepc_matrix deepc_one_hot_encode_labels(deepc_matrix labels, 
-    size_t num_classes);
+int deepc_one_hot_encode_labels(deepc_matrix* dest, deepc_matrix labels, 
+    int num_classes);
 
-deepc_matrix deepc_normalize_matrix(deepc_matrix mat);
-deepc_matrix deepc_standardize_matrix(deepc_matrix mat);
+int deepc_one_hot_decode_labels(deepc_matrix* dest, deepc_matric one_hot);
 
-void deepc_shuffle_dataset(deepc_matrix* dst, deepc_matrix src);
+deepc_matrix deepc_normalized_matrix(deepc_matrix matrix);
+deepc_matrix deepc_standardized_matrix(deepc_matrix matrix);
+
+void deepc_shuffle_dataset(deepc_matrix* lhs, deepc_matrix* rhs);
 
 #ifdef __cplusplus
 }

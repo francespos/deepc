@@ -1,5 +1,8 @@
 #include "deepc/data_processing.h"
+#include <stdio.h>
+#include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 int deepc_count_columns(const char* line) {
     int count = 0;
@@ -135,8 +138,8 @@ int deepc_load_csv(deepc_matrix* dest, const char* filename, bool has_header) {
 // Count missing values in matrix (NaN values)
 int deepc_count_missing_values(deepc_matrix matrix) {
     int count = 0;
-    for (int i = 0; i < mat.num_rows; ++i) {
-        for (int j = 0; j < mat.num_cols; ++j) {
+    for (int i = 0; i < matrix.num_rows; ++i) {
+        for (int j = 0; j < matrix.num_cols; ++j) {
             if (isnan(DEEPC_MATRIX_AT(matrix, i, j))) {
                 ++count;
             }
@@ -147,15 +150,15 @@ int deepc_count_missing_values(deepc_matrix matrix) {
 }
 
 // Fill missing values with column mean
-void deepc_fill_missing_with_mean(deepc_matrix matrix) {
-    for (int j = 0; j < matrix.num_cols; ++j) {
+void deepc_fill_missing_with_mean(deepc_matrix* matrix) {
+    for (int j = 0; j < matrix->num_cols; ++j) {
         // Calculate mean for column j (ignoring NaN)
         float sum = 0.0f;
         int count = 0;
         
-        for (int i = 0; i < matrix.num_rows; ++i) {
-            if (!isnan(DEEPC_MATRIX_AT(matrix, i, j))) {
-                sum += DEEPC_MATRIX_AT(matrix, i, j);
+        for (int i = 0; i < matrix->num_rows; ++i) {
+            if (!isnan(DEEPC_MATRIX_AT(*matrix, i, j))) {
+                sum += DEEPC_MATRIX_AT(*matrix, i, j);
                 ++count;
             }
         }
@@ -163,16 +166,16 @@ void deepc_fill_missing_with_mean(deepc_matrix matrix) {
         if (count > 0) {
             float mean = sum / count;
             // Fill missing values with mean
-            for (int i = 0; i < matrix.num_rows; ++i) {
-                if (isnan(DEEPC_MATRIX_AT(matrix, i, j))) {
-                    DEEPC_MATRIX_AT(matrix, i, j) = mean;
+            for (int i = 0; i < matrix->num_rows; ++i) {
+                if (isnan(DEEPC_MATRIX_AT(*matrix, i, j))) {
+                    DEEPC_MATRIX_AT(*matrix, i, j) = mean;
                 }
             }
         } else {
             // If all values are missing, fill with 0
-            for (int i = 0; i < matrix.num_rows; ++i) {
-                if (isnan(DEEPC_MATRIX_AT(matrix, i, j))) {
-                    DEEPC_MATRIX_AT(matrix, i, j) = 0.0f;
+            for (int i = 0; i < matrix->num_rows; ++i) {
+                if (isnan(DEEPC_MATRIX_AT(*matrix, i, j))) {
+                    DEEPC_MATRIX_AT(*matrix, i, j) = 0.0f;
                 }
             }
         }
@@ -191,11 +194,9 @@ void deepc_fill_missing_with_zeros(deepc_matrix* matrix) {
 }
 
 // Print matrix statistics
-void deepc_print_matrix_stats(deepc_matrix mat) {
-    // CSV_CHECK(m != NULL, "Matrix cannot be NULL");
-    
+void deepc_print_matrix_stats(deepc_matrix matrix) {
     printf("=== MATRIX STATISTICS ===\n");
-    printf("Dimensions: %d x %d\n", mat.num_rows, mat.num_cols);
+    printf("Dimensions: %d x %d\n", matrix.num_rows, matrix.num_cols);
     printf("Missing values: %d\n", deepc_count_missing_values(mat));
     
     for (int j = 0; j < mat.num_cols; ++j) {
@@ -232,23 +233,13 @@ void deepc_print_matrix_stats(deepc_matrix mat) {
 }
 
 // Train-test split function
-// TODO: Definetely split it into subfunctions...
 int deepc_train_test_split(deepc_matrix x, deepc_matrix y, float test_size, 
     deepc_matrix* x_train, deepc_matrix* x_test, 
     deepc_matrix* y_train, deepc_matrix* y_test) 
-{
-    // TODO: May un-comment last two checks
-    // CSV_CHECK(X != NULL, "Feature matrix X cannot be NULL");
-    // CSV_CHECK(y != NULL, "Target matrix y cannot be NULL");
-    // CSV_CHECK(X->rows == y->rows, "X and y must have same number of rows");
-    // CSV_CHECK(test_size > 0.0 && test_size < 1.0, "test_size must be between 0 and 1");
-    
+{    
     int total_samples = x.num_rows;
     int test_samples = (int)(total_samples * test_size);
     int train_samples = total_samples - test_samples;
-    
-    // CSV_CHECK(train_samples > 0, "Training set would be empty");
-    // CSV_CHECK(test_samples > 0, "Test set would be empty");
     
     // Create result matrices
     if (deepc_initialize_matrix(x_train, train_samples, x.num_cols) ||
@@ -258,14 +249,9 @@ int deepc_train_test_split(deepc_matrix x, deepc_matrix y, float test_size,
     {
         return -1; 
     }
-    // *X_train = create_matrix(train_samples, X->cols);
-    // *X_test = create_matrix(test_samples, X->cols);
-    // *y_train = create_matrix(train_samples, y->cols);
-    // *y_test = create_matrix(test_samples, y->cols);
     
     // Create shuffled indices
     int* indices = (int*)malloc(total_samples * sizeof(int));
-    // CSV_CHECK(indices != NULL, "Memory allocation failed for indices");
     
     for (int i = 0; i < total_samples; ++i) {
         indices[i] = i;
@@ -287,12 +273,10 @@ int deepc_train_test_split(deepc_matrix x, deepc_matrix y, float test_size,
         // Copy features
         for (int j = 0; j < x.num_cols; ++j) {
             DEEPC_MATRIX_AT(*x_train, i, j) = DEEPC_MATRIX_AT(x, orig_idx, j); 
-            // (*X_train)->data[i][j] = X->data[orig_idx][j];
         }
         // Copy targets
         for (int j = 0; j < y.num_cols; ++j) {
             DEEPC_MATRIX_AT(*y_train, i, j) = DEEPC_MATRIX_AT(y, orig_idx, j);
-            // (*y_train)->data[i][j] = y->data[orig_idx][j];
         }
     }
     
@@ -301,47 +285,39 @@ int deepc_train_test_split(deepc_matrix x, deepc_matrix y, float test_size,
         // Copy features
         for (int j = 0; j < x.num_cols; ++j) {
             DEEPC_MATRIX_AT(*x_test, i, j) = DEEP_MATRIX_AT(x, orig_idx, j);
-            // (*X_test)->data[i][j] = X->data[orig_idx][j];
         }
         // Copy targets
         for (int j = 0; j < y.num_cols; ++j) {
             DEEPC_MATRIX_AT(*y_test, i, j) = DEEP_MATRIX_AT(y, orig_idx, j); 
-            // (*y_test)->data[i][j] = y->data[orig_idx][j];
         }
     }
     
     free(indices);
 }
 
-int deepc_split_features_labels(deepc_matrix* dst, deepc_matrix data, 
+int deepc_split_features_labels(deepc_matrix* dest, deepc_matrix data, 
     int label_column) 
 {
-    // CSV_CHECK(data != NULL, "Data matrix cannot be NULL");
-    // CSV_CHECK(label_column >= 0 && label_column < data->cols, "Label column out of bounds");
-    
     int num_samples = data.num_rows;
     int num_features = data.num_cols - 1;
     
-    // Create result matrix: [X, y] combined
-    int err = deepc_initialize_matrix(dst, num_samples, num_features + 1);
+    // Create result matrix: [x, y] combined
+    int err = deepc_initialize_matrix(dest, num_samples, num_features + 1);
     if (err) {
         return err;
     }
-    // Matrix* result = create_matrix(num_samples, num_features + 1);
 
     for (int i = 0; i < num_samples; ++i) {
         int feature_idx = 0;
         for (int j = 0; j < data.num_cols; ++j) {
             if (j == label_column) {
                 // Put label in the last column
-                DEEPC_MATRIX_AT(*dst, i, num_features) = 
+                DEEPC_MATRIX_AT(*dest, i, num_features) = 
                     DEEP_MATRIX_AT(data, i, j);
-                // result->data[i][num_features] = data->data[i][j];
             } else {
                 // Put feature in current position
-                DEEPC_MATRIX_AT(*dst, i, feature_idx) = 
+                DEEPC_MATRIX_AT(*dest, i, feature_idx) = 
                     DEEPC_MATRIX_AT(data, i, j);
-                //result->data[i][feature_idx] = data->data[i][j];
                 ++feature_idx;
             }
         }
@@ -351,23 +327,18 @@ int deepc_split_features_labels(deepc_matrix* dst, deepc_matrix data,
 }
 
 // One-hot encode labels
-int deepc_one_hot_encode_labels(deepc_matrix* dst, deepc_matrix labels, 
+int deepc_one_hot_encode_labels(deepc_matrix* dest, deepc_matrix labels, 
     int num_classes) 
 {
-    // CSV_CHECK(labels != NULL, "Labels matrix cannot be NULL");
-    // CSV_CHECK(num_classes > 0, "Number of classes must be positive");
-    // CSV_CHECK(labels->cols == 1, "Labels must be a single column");
-    
     int num_samples = labels.num_rows;
 
-    int err = create_matrix(dst, num_samples, num_classes);
+    int err = deepc_initialize_matrix(dest, num_samples, num_classes);
     if (err) {
         return err;
     }
     
     for (int i = 0; i < num_samples; ++i) {
         int label = (int)DEEPC_MATRIX_AT(labels, i, 0);
-        //int label = (int)labels->data[i][0];
         
         // Validate label
         if (label < 0 || label >= num_classes) {
@@ -375,14 +346,12 @@ int deepc_one_hot_encode_labels(deepc_matrix* dst, deepc_matrix labels,
                 label, num_classes - 1, i);
             // Set to uniform distribution for invalid labels
             for (int j = 0; j < num_classes; ++j) {
-                DEEPC_MATRIX_AT(*dst, i, j) = 1.0f / num_classes;
-                // one_hot->data[i][j] = 1.0 / num_classes;
+                DEEPC_MATRIX_AT(*dest, i, j) = 1.0f / num_classes;
             }
         } else {
             // Set one-hot encoding
             for (int j = 0; j < num_classes; ++j) {
-                DEEPC_MATRIX_AT(*dst, i, j) = (j == label) ? 1.0f : 0.0f;
-                // one_hot->data[i][j] = (j == label) ? 1.0 : 0.0;
+                DEEPC_MATRIX_AT(*dest, i, j) = (j == label) ? 1.0f : 0.0f;
             }
         }
     }
@@ -391,46 +360,35 @@ int deepc_one_hot_encode_labels(deepc_matrix* dst, deepc_matrix labels,
 }
 
 // Convert one-hot encoded labels back to class indices
-deepc_matrix deepc_one_hot_decode_labels(deepc_matrix one_hot) {
-    // CSV_CHECK(one_hot != NULL, "One-hot matrix cannot be NULL");
-    
+int deepc_one_hot_decode_labels(deepc_matrix* dest, deepc_matrix one_hot) {
     int num_samples = one_hot.num_rows;
     int num_classes = one_hot.num_cols;
 
-    deepc_matrix labels;
-    int err = deepc_initialize_matrix(&labels, num_samples, 1);
+    int err = deepc_initialize_matrix(dest, num_samples, 1);
     if (err) {
         return err;
     }
-    // Matrix* labels = create_matrix(num_samples, 1);
     
     for (int i = 0; i < num_samples; ++i) {
         int max_index = 0;
         float max_value = DEEPC_MATRIX_AT(one_hot, i, 0);
-        // double max_value = one_hot->data[i][0];
         
         for (int j = 1; j < num_classes; ++j) {
             if (DEEPC_MATRIX_AT(one_hot, i, j) > max_value) {
-            // if (one_hot->data[i][j] > max_value) {
                 max_value = DEEPC_MATRIX_AT(one_hot, i, j);
-                // max_value = one_hot->data[i][j];
                 max_index = j;
             }
         }
         
-        DEEPC_MATRIX_AT(labels, i, 0) = (float)max_index;
-        // labels->data[i][0] = (double)max_index;
+        DEEPC_MATRIX_AT(*dest, i, 0) = (float)max_index;
     }
     
-    return labels;
+    return 0;
 }
 
 // Normalize matrix to [0, 1] range
-deepc_matrix deepc_normalized_matrix(deepc_matrix x) {
-    // CSV_CHECK(X != NULL, "Matrix cannot be NULL");
-    
-    deepc_matrix normalized = deepc_copy_matrix(*x);
-    // Matrix* normalized = copy_matrix(X);
+deepc_matrix deepc_normalized_matrix(deepc_matrix matrix) {
+    deepc_matrix normalized = deepc_copy_matrix(*matrix);
     
     for (int j = 0; j < normalized.num_cols; ++j) {
         // Find min and max for column j
@@ -448,11 +406,6 @@ deepc_matrix deepc_normalized_matrix(deepc_matrix x) {
             }
 
             ++valid_count;
-            // if (!isnan(normalized->data[i][j])) {
-            //     if (normalized->data[i][j] < min_val) min_val = normalized->data[i][j];
-            //     if (normalized->data[i][j] > max_val) max_val = normalized->data[i][j];
-            //     valid_count++;
-            // }
         }
         
         if (valid_count > 0 && max_val > min_val) {
@@ -463,11 +416,6 @@ deepc_matrix deepc_normalized_matrix(deepc_matrix x) {
                         min_val) / (max_val - min_val);
                 }
             }
-            // for (int i = 0; i < normalized->rows; i++) {
-            //     if (!isnan(normalized->data[i][j])) {
-            //         normalized->data[i][j] = (normalized->data[i][j] - min_val) / (max_val - min_val);
-            //     }
-            // }
         }
     }
     
@@ -476,9 +424,6 @@ deepc_matrix deepc_normalized_matrix(deepc_matrix x) {
 
 // Standardize matrix to mean = 0, std = 1
 deepc_matrix deepc_standardized_matrix(deepc_matrix matrix) {
-//Matrix* standardize_matrix(Matrix *X) {
-    // CSV_CHECK(X != NULL, "Matrix cannot be NULL");
-    
     deepc_matrix standardized = deepc_copy_matrix(matrix);
 
     for (int j = 0; j < standardized.num_cols; ++j) {
