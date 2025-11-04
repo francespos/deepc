@@ -1,10 +1,10 @@
 #include "deepc/matrix.h"
 
 // Stack trace function
-void print_stack_trace(void) {
+void deepc_print_stack_trace() {
 #ifdef EXECINFO_AVAILABLE
-    void *buffer[100];
-    char **strings;
+    void* buffer[100];
+    char** strings;
     int nptrs;
     
     printf("\n=== STACK TRACE ===\n");
@@ -25,87 +25,38 @@ void print_stack_trace(void) {
 #endif
 }
 
-// Error handling macro with stack trace
-#define MATRIX_ERROR(msg) do { \
-    fprintf(stderr, "\n*** MATRIX ERROR ***\n"); \
-    fprintf(stderr, "Message: %s\n", msg); \
-    fprintf(stderr, "File: %s\n", __FILE__); \
-    fprintf(stderr, "Line: %d\n", __LINE__); \
-    fprintf(stderr, "Function: %s\n", __func__); \
-    print_stack_trace(); \
-    exit(EXIT_FAILURE); \
-} while(0)
-
-#define MATRIX_CHECK(condition, msg) do { \
-    if (!(condition)) { \
-        MATRIX_ERROR(msg); \
-    } \
-} while(0)
-
-// Create a new matrix
-Matrix* create_matrix(int rows, int cols) {
-    MATRIX_CHECK(rows > 0 && cols > 0, "Matrix dimensions must be positive");
-    
-    Matrix *m = (Matrix*)malloc(sizeof(Matrix));
-    MATRIX_CHECK(m != NULL, "Memory allocation failed for matrix structure");
-    
-    m->rows = rows;
-    m->cols = cols;
-    
-    // Allocate memory for row pointers
-    m->data = (double**)malloc(rows * sizeof(double*));
-    MATRIX_CHECK(m->data != NULL, "Memory allocation failed for matrix rows");
-    
-    // Allocate memory for each row
-    for (int i = 0; i < rows; i++) {
-        m->data[i] = (double*)malloc(cols * sizeof(double));
-        if (!m->data[i]) {
-            // Free previously allocated memory before terminating
-            for (int j = 0; j < i; j++) {
-                free(m->data[j]);
-            }
-            free(m->data);
-            free(m);
-            MATRIX_ERROR("Memory allocation failed for matrix row");
-        }
-        
-        // Initialize to zero
-        for (int j = 0; j < cols; j++) {
-            m->data[i][j] = 0.0;
-        }
+// Initialize the matrix
+int deepc_initialize_matrix(deepc_matrix* matrix, int num_rows, int num_cols) {
+    matrix->data = malloc(num_rows * num_cols * sizeof(double));
+    if (matrix->data == NULL) {
+        return -1;
     }
+
+    matrix->num_rows = num_rows;
+    matrix->num_cols = num_cols;
     
-    return m;
+    return 0;
 }
 
-// Free matrix memory
-void free_matrix(Matrix *m) {
-    if (m) {
-        if (m->data) {
-            for (int i = 0; i < m->rows; i++) {
-                if (m->data[i]) {
-                    free(m->data[i]);
-                }
-            }
-            free(m->data);
-        }
-        free(m);
-    }
+// Deinitialize the matrix
+void deepc_deinitialize_matrix(deepc_matrix* matrix) {
+    free(matrix->data);
+    matrix->data = NULL;
+    matrix->num_rows = matrix->num_cols = 0;
 }
 
 // Create a deep copy of a matrix
-Matrix* copy_matrix(const Matrix *src) {
-    MATRIX_CHECK(src != NULL, "Source matrix is NULL");
-    
-    Matrix *dest = create_matrix(src->rows, src->cols);
-    
-    for (int i = 0; i < src->rows; i++) {
-        for (int j = 0; j < src->cols; j++) {
-            dest->data[i][j] = src->data[i][j];
-        }
+int deepc_copy_matrix(deepc_matrix* dest, deepc_matrix src) {
+    int err = deepc_initialize_matrix(dest, src.num_rows, src.num_cols);
+    if (err) {
+        return err;
+    }
+
+    for (int i = 0; i < num_rows * num_cols; ++i) {
+        dest->data[i] = src.data[i];
     }
     
-    return dest;
+    return 0;
 }
 
 // Create matrix filled with zeros

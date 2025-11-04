@@ -13,11 +13,15 @@
 extern "C" {
 #endif
 
-typedef struct deepc_matrix {
+typedef struct deepc_matrix deepc_matrix;
+
+struct deepc_matrix {
     float* data;
     int num_rows;
     int num_cols;
-} deepc_matrix;
+};
+
+#define DEEPC_MATRIX_AT(matrix, i, j) ((matrix).num_cols * (i) + (j))
 
 int deepc_initialize_matrix(deepc_matrix* matrix, int num_rows, int num_cols);
 void deepc_deinitialize_matrix(deepc_matrix* matrix);
@@ -36,24 +40,27 @@ deepc_matrix deepc_matrix_col(deepc_matrix matrix, int col_pos);
 void deepc_set_row(deepc_matrix matrix, int row_pos, float* row);
 void deepc_set_col(deepc_matrix matrix, int col_pos, float* col);
 
-deepc_matrix deepc_add(deepc_matrix lhs, deepc_matrix rhs);
-deepc_matrix deepc_subtract(deepc_matrix lhs, deepc_matrix rhs);
-deepc_matrix deepc_multiply(deepc_matrix lhs, deepc_matrix rhs);
-deepc_matrix deepc_dot(deepc_matrix lhs, deepc_matrix rhs);
-deepc_matrix deepc_scale(deepc_matrix lhs, float rhs);
+deepc_matrix deepc_sum_matrices(deepc_matrix lhs, deepc_matrix rhs);
+deepc_matrix deepc_subtract_matrices(deepc_matrix lhs, deepc_matrix rhs);
+deepc_matrix deepc_multiply_matrices(deepc_matrix lhs, deepc_matrix rhs);
+deepc_matrix deepc_hadamard_multiply_matrices(deepc_matrix lhs, 
+    deepc_matrix rhs);
 
-deepc_matrix deepc_transpose(deepc_matrix mat);
-deepc_matrix deepc_apply_function(deepc_matrix mat, float (*func)(float));
+deepc_matrix deepc_scale_matrix(deepc_matrix matrix, float scalar);
 
-void deepc_add_inplace(deepc_matrix* lhs, deepc_matrix rhs);
-void deepc_subtract_inplace(deepc_matrix* lhs, deepc_matrix rhs);
-void deepc_scale_inplace(deepc_matrix* lhs, float rhs);
+deepc_matrix deepc_transpose_matrix(deepc_matrix matrix);
+deepc_matrix deepc_apply_function_to_matrix(deepc_matrix matrix, 
+    float (*func)(float));
+
+void deepc_add_matrix_inplace(deepc_matrix* lhs, deepc_matrix rhs);
+void deepc_subtract_matrix_inplace(deepc_matrix* lhs, deepc_matrix rhs);
+void deepc_scale_matrix_inplace(deepc_matrix* matrix, float scalar);
 
 float deepc_sigmoid(float x);
 float deepc_relu(float x);
 float deepc_tanh(float x);
 
-void deepc_print_stack_trace(void);
+void deepc_print_stack_trace();
 int deepc_matrix_has_nan(deepc_matrix mat);
 
 deepc_matrix deepc_features(deepc_matrix data_with_labels, int label_column);
