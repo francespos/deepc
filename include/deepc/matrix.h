@@ -26,7 +26,7 @@ struct deepc_matrix {
 int deepc_initialize_matrix(deepc_matrix* matrix, int num_rows, int num_cols);
 void deepc_deinitialize_matrix(deepc_matrix* matrix);
 
-deepc_matrix deepc_copy_matrix(deepc_matrix matrix);
+int deepc_copy_matrix(deepc_matrix* dest, deepc_matrix src);
 
 deepc_matrix deepc_zeros_matrix(int num_rows, int num_cols);
 deepc_matrix deepc_ones_matrix(int num_rows, int num_cols);

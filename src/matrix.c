@@ -27,7 +27,7 @@ void deepc_print_stack_trace() {
 
 // Initialize the matrix
 int deepc_initialize_matrix(deepc_matrix* matrix, int num_rows, int num_cols) {
-    matrix->data = malloc(num_rows * num_cols * sizeof(double));
+    matrix->data = malloc(sizeof(float) * num_rows * num_cols);
     if (matrix->data == NULL) {
         return -1;
     }
@@ -59,74 +59,83 @@ int deepc_copy_matrix(deepc_matrix* dest, deepc_matrix src) {
     return 0;
 }
 
-// Create matrix filled with zeros
-Matrix* zeros(int rows, int cols) {
-    return create_matrix(rows, cols); // Already initialized to zeros
+// Fill matrix with zeros
+int deep_zeros_matrix(deepc_matrix* dest, int num_rows, int num_cols) {
+    int err = deepc_initialize_matrix(dest, num_rows, num_cols);
+    if (err) {
+        return err;
+    }
+
+    for (int i = 0; i < num_rows * num_cols; ++i) {
+        dest->data[i] = 0.0f;
+    }
+
+    return 0;
 }
 
-// Create matrix filled with ones
-Matrix* ones(int rows, int cols) {
-    Matrix *m = create_matrix(rows, cols);
-    
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            m->data[i][j] = 1.0;
-        }
+// Fill matrix with ones
+int deepc_ones_matrix(deepc_matrix* dest, int num_rows, int num_cols) {
+    int err = deepc_initialize_matrix(dest, num_rows, num_cols);
+    if (err) {
+        return err;
     }
-    
-    return m;
+
+    for (int i = 0; i < num_rows * num_cols; ++i) {
+        dest->data[i] = 1.0f;
+    }
+
+    return 0;
 }
 
-// Create matrix with random values between 0 and 1
-Matrix* rand_matrix(int rows, int cols) {
-    Matrix *m = create_matrix(rows, cols);
-    
-    // Seed random number generator only once
-    static int seeded = 0;
-    if (!seeded) {
-        srand(time(NULL));
-        seeded = 1;
+// Fills matrix with random values between 0.0f and 1.0f
+int deepc_rand_matrix(deepc_matrix* dest, int seed, int num_rows, int num_cols)
+{
+    int err = deepc_initialize_matrix(dest, num_rows, num_cols);
+    if (err) {
+        return err;
+    }
+
+    srand(seed);
+    for (int i = 0; i < num_rows * num_cols; ++i) {
+        dest->data[i] = (float)rand() / RAND_MAX;
     }
     
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            m->data[i][j] = (double)rand() / RAND_MAX;
-        }
-    }
-    
-    return m;
+    return 0;
 }
 
 // Print matrix
-void print_matrix(const Matrix *m) {
-    MATRIX_CHECK(m != NULL, "Matrix is NULL");
-    
-    printf("Matrix (%d x %d):\n", m->rows, m->cols);
-    for (int i = 0; i < m->rows; i++) {
-        for (int j = 0; j < m->cols; j++) {
-            if (isnan(m->data[i][j])) {
+void deepc_print_matrix(deepc_matrix matrix) {
+    printf("Matrix (%d x %d):\n", matrix.num_rows, matrix.num_cols);
+
+    for (int i = 0; i < matrix.num_rows; ++i) {
+        for (int j = 0; j < matrix.num_cols; ++j) {
+            if (isnan(DEEPC_MATRIX_AT(matrix, i, j))) {
                 printf("     NaN ");
             } else {
-                printf("%8.4f ", m->data[i][j]);
+                printf("%8.4f ", DEEPC_MATRIX_AT(matrix, i, j));
             }
         }
+
         printf("\n");
     }
+
     printf("\n");
 }
 
-// Get a specific row as a new 1 x cols matrix
-Matrix* get_row(const Matrix *m, int row_index) {
-    MATRIX_CHECK(m != NULL, "Matrix is NULL");
-    MATRIX_CHECK(row_index >= 0 && row_index < m->rows, "Row index out of bounds");
-    
-    Matrix *row = create_matrix(1, m->cols);
-    
-    for (int j = 0; j < m->cols; j++) {
-        row->data[0][j] = m->data[row_index][j];
+// Get a specific row as a new 1xcols matrix
+int deepc_matrix_row(deepc_matrix* dest, deepc_matrix matrix, 
+    int row_pos) 
+{
+    int err = deepc_initialize_matrix(dest, 1, matrix.num_cols);
+    if (err) {
+        return err;
     }
     
-    return row;
+    for (int j = 0; j < matrix.num_cols; ++j) {
+        DEEPC_MATRIX_AT(*dest, 0, j) = DEEPC_MATRIX_AT(*dest, row_pos, j);
+    }
+    
+    return 0;
 }
 
 // Get a specific column as a new rows x 1 matrix
