@@ -1,14 +1,6 @@
 #ifndef DEEPC_MATRIX_H
 #define DEEPC_MATRIX_H
 
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <time.h>
-// #include <math.h>
-// #include <execinfo.h>
-// #include <stddef.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
