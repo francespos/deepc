@@ -26,7 +26,7 @@ void deepc_print_stack_trace() {
 }
 
 // Initialize the matrix
-deepc_error_code deepc_initialize_matrix(deepc_matrix* matrix, int num_rows, 
+deepc_error deepc_initialize_matrix(deepc_matrix* matrix, int num_rows, 
     int num_cols) 
 {
     matrix->data = malloc(sizeof(float) * num_rows * num_cols);
@@ -48,10 +48,8 @@ void deepc_deinitialize_matrix(deepc_matrix* matrix) {
 }
 
 // Create a deep copy of a matrix
-deepc_error_code deepc_copy_matrix(deepc_matrix* dest, deepc_matrix src) {
-    deepc_error_code err = deepc_initialize_matrix(dest, src.num_rows, 
-        src.num_cols);
-
+deepc_error deepc_copy_matrix(deepc_matrix* dest, deepc_matrix src) {
+    deepc_error err = deepc_initialize_matrix(dest, src.num_rows, src.num_cols);
     if (err) {
         return err;
     }
@@ -64,10 +62,8 @@ deepc_error_code deepc_copy_matrix(deepc_matrix* dest, deepc_matrix src) {
 }
 
 // Fill matrix with zeros
-deepc_error_code deep_zeros_matrix(deepc_matrix* dest, int num_rows, 
-    int num_cols) 
-{
-    deepc_error_code err = deepc_initialize_matrix(dest, num_rows, num_cols);
+deepc_error deep_zeros_matrix(deepc_matrix* dest, int num_rows, int num_cols) {
+    deepc_error err = deepc_initialize_matrix(dest, num_rows, num_cols);
     if (err) {
         return err;
     }
@@ -80,10 +76,8 @@ deepc_error_code deep_zeros_matrix(deepc_matrix* dest, int num_rows,
 }
 
 // Fill matrix with ones
-deepc_error_code deepc_ones_matrix(deepc_matrix* dest, int num_rows, 
-    int num_cols) 
-{
-    deepc_error_code err = deepc_initialize_matrix(dest, num_rows, num_cols);
+deepc_error deepc_ones_matrix(deepc_matrix* dest, int num_rows, int num_cols) {
+    deepc_error err = deepc_initialize_matrix(dest, num_rows, num_cols);
     if (err) {
         return err;
     }
@@ -96,9 +90,10 @@ deepc_error_code deepc_ones_matrix(deepc_matrix* dest, int num_rows,
 }
 
 // Fills matrix with random values between 0.0f and 1.0f
-int deepc_rand_matrix(deepc_matrix* dest, int num_rows, int num_cols, int seed)
+deepc_error deepc_rand_matrix(deepc_matrix* dest, int num_rows, int num_cols, 
+    int seed) 
 {
-    deepc_error_code err = deepc_initialize_matrix(dest, num_rows, num_cols);
+    deepc_error err = deepc_initialize_matrix(dest, num_rows, num_cols);
     if (err) {
         return err;
     }
@@ -108,7 +103,7 @@ int deepc_rand_matrix(deepc_matrix* dest, int num_rows, int num_cols, int seed)
         dest->data[i] = (float)rand() / RAND_MAX;
     }
     
-    return 0;
+    return DEEPC_SUCCESS;
 }
 
 // Print matrix
@@ -131,8 +126,7 @@ void deepc_print_matrix(deepc_matrix matrix) {
 }
 
 // Get a specific row as a new 1xcols matrix
-deepc_error_code deepc_matrix_row(deepc_matrix* dest, deepc_matrix src, 
-    int row_pos) 
+deepc_error deepc_matrix_row(deepc_matrix* dest, deepc_matrix src, int row_pos) 
 {
     deepc_error_code err = deepc_initialize_matrix(dest, 1, src.num_cols);
     if (err) {
@@ -177,15 +171,13 @@ void deepc_set_matrix_col(deepc_matrix* dest, int col_pos, deepc_matrix col) {
 }
 
 // Element-wise addition
-deepc_error_code deepc_sum_matrices(deepc_matrix* rslt, deepc_matrix lhs, 
+deepc_error deepc_sum_matrices(deepc_matrix* rslt, deepc_matrix lhs, 
     deepc_matrix rhs) 
 {
     DEEPC_ASSERT(lhs.num_rows == rhs.num_rows && lhs.num_cols == rhs.num_cols, 
         "Matrices must have the same number of rows and columns");
 
-    deepc_error_code err = deepc_initialize_matrix(rslt, lhs.num_rows, 
-        lhs.num_cols);
-
+    deepc_error err = deepc_initialize_matrix(rslt, lhs.num_rows, lhs.num_cols);
     if (err) {
         return err;
     }
@@ -198,15 +190,13 @@ deepc_error_code deepc_sum_matrices(deepc_matrix* rslt, deepc_matrix lhs,
 }
 
 // Element-wise subtraction
-deepc_error_code deepc_subtract_matrices(deepc_matrix* rslt , deepc_matrix lhs, 
+deepc_error deepc_subtract_matrices(deepc_matrix* rslt , deepc_matrix lhs, 
     deepc_matrix rhs) 
 {
     DEEPC_ASSERT(lhs.num_rows == rhs.num_rows && lhs.num_cols == rhs.num_cols, 
         "Matrices must have the same number of rows and columns");
 
-    deepc_error_code err = deepc_initialize_matrix(rslt, lhs.num_rows, 
-        lhs.num_cols);
-
+    deepc_error err = deepc_initialize_matrix(rslt, lhs.num_rows, lhs.num_cols);
     if (err) {
         return err;
     }
@@ -219,7 +209,7 @@ deepc_error_code deepc_subtract_matrices(deepc_matrix* rslt , deepc_matrix lhs,
 }
 
 // Element-wise multiplication (Hadamard product)
-deepc_error_code deepc_hadamard_multiply_matrices(deepc_matrix* rslt, 
+deepc_error deepc_hadamard_multiply_matrices(deepc_matrix* rslt, 
     deepc_matrix lhs, deepc_matrix rhs) 
 {
     DEEPC_ASSERT(lhs.num_rows == rhs.num_rows && lhs.num_cols == rhs.num_cols, 
@@ -239,12 +229,10 @@ deepc_error_code deepc_hadamard_multiply_matrices(deepc_matrix* rslt,
     return DEEPC_SUCCESS;    
 }
 
-deepc_error_code deepc_multiply_matrices(deepc_matrix* rslt, deepc_matrix lhs, 
+deepc_error deepc_multiply_matrices(deepc_matrix* rslt, deepc_matrix lhs, 
     deepc_matrix rhs) 
 {
-    deepc_error_code err = deepc_initialize_matrix(rslt, lhs.num_rows, 
-        rhs.num_cols);
-
+    deepc_error err = deepc_initialize_matrix(rslt, lhs.num_rows, rhs.num_cols);
     if (err) {
         return err;
     }
@@ -263,61 +251,63 @@ deepc_error_code deepc_multiply_matrices(deepc_matrix* rslt, deepc_matrix lhs,
 }   
 
 // Scalar multiplication
-Matrix* scale(const Matrix *a, double scalar) {
-    MATRIX_CHECK(a != NULL, "Matrix cannot be NULL");
-    
-    Matrix *result = create_matrix(a->rows, a->cols);
-    
-    for (int i = 0; i < a->rows; i++) {
-        for (int j = 0; j < a->cols; j++) {
-            result->data[i][j] = a->data[i][j] * scalar;
-        }
+deepc_error deepc_scale_matrix(deepc_matrix* rslt, deepc_matrix matrix, 
+    float scalar) 
+{
+    deepc_error err = deepc_initialize_matrix(rslt, matrix.num_rows, 
+        matrix.num_cols);
+
+    if (err) {
+        return err;
     }
-    
-    return result;
+
+    for (int i = 0; i < matrix.num_rows * matrix.num_cols; ++i) {
+        rslt->data[i] = matrix.data[i] * scalar;
+    }
+
+    return DEEPC_SUCCESS;
 }
 
 // Matrix transpose
-Matrix* transpose(const Matrix *a) {
-    MATRIX_CHECK(a != NULL, "Matrix cannot be NULL");
-    
-    Matrix *result = create_matrix(a->cols, a->rows);
-    
-    for (int i = 0; i < a->rows; i++) {
-        for (int j = 0; j < a->cols; j++) {
-            result->data[j][i] = a->data[i][j];
+deepc_error deepc_transpose_matrix(deepc_matrix* rslt, deepc_matrix matrix) {
+    deepc_error err = deepc_initialize_matrix(rslt, matrix.num_rows, 
+        matrix.num_cols);
+
+    if (err) {
+        return err;
+    }
+
+    for (int i = 0; i < matrix.num_rows; ++i) {
+        for (int j = 0; j < matrix.num_cols; ++j) {
+            DEEPC_MATRIX_AT(*rslt, i, j) = DEEPC_MATRIX_AT(matrix, j, i);
         }
     }
-    
-    return result;
+
+    return DEEPC_SUCCESS;
 }
 
 // Apply function to each element
-Matrix* apply_function(const Matrix *a, double (*func)(double)) {
-    MATRIX_CHECK(a != NULL, "Matrix cannot be NULL");
-    MATRIX_CHECK(func != NULL, "Function pointer cannot be NULL");
-    
-    Matrix *result = create_matrix(a->rows, a->cols);
-    
-    for (int i = 0; i < a->rows; i++) {
-        for (int j = 0; j < a->cols; j++) {
-            result->data[i][j] = func(a->data[i][j]);
-        }
+deepc_error deepc_apply_function_to_matrix(deepc_matrix* rslt, 
+    deepc_matrix matrix, float (*func)(float)) 
+{
+    deepc_error err = deepc_initialize_matrix(rslt, matrix.num_rows, 
+        matrix.num_cols);
+
+    if (err) {
+        return err;
     }
-    
-    return result;
+
+    for (int i = 0; i < matrix.num_rows * matrix.num_cols; ++i) {
+        rslt->data[i] = func(matrix.data[i]);
+    }
+
+    return DEEPC_SUCCESS;
 }
 
 // In-place operations (more efficient)
-void add_inplace(Matrix *a, const Matrix *b) {
-    MATRIX_CHECK(a != NULL && b != NULL, "Matrices cannot be NULL");
-    MATRIX_CHECK(a->rows == b->rows && a->cols == b->cols, 
-                "Matrix dimensions don't match for in-place addition");
-    
-    for (int i = 0; i < a->rows; i++) {
-        for (int j = 0; j < a->cols; j++) {
-            a->data[i][j] += b->data[i][j];
-        }
+void deepc_sum_matrix_in_place(deepc_matrix* lhs, deepc_matrix rhs) {
+    for (int i = 0; i < rhs.num_rows * rhs.num_cols; ++i) {
+        lhs->data[i] += rhs.data[i];
     }
 }
 
