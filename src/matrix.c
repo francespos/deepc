@@ -311,120 +311,112 @@ void deepc_sum_matrix_in_place(deepc_matrix* lhs, deepc_matrix rhs) {
     }
 }
 
-void subtract_inplace(Matrix *a, const Matrix *b) {
-    MATRIX_CHECK(a != NULL && b != NULL, "Matrices cannot be NULL");
-    MATRIX_CHECK(a->rows == b->rows && a->cols == b->cols, 
-                "Matrix dimensions don't match for in-place subtraction");
-    
-    for (int i = 0; i < a->rows; i++) {
-        for (int j = 0; j < a->cols; j++) {
-            a->data[i][j] -= b->data[i][j];
-        }
+void deepc_subtract_matrix_in_place(deepc_matrix* lhs, deepc_matrix rhs) {
+    for (int i = 0; i < rhs.num_rows * rhs.num_cols; ++i) {
+        lhs->data[i] -= rhs.data[i];
     }
 }
 
-void scale_inplace(Matrix *a, double scalar) {
-    MATRIX_CHECK(a != NULL, "Matrix cannot be NULL");
-    
-    for (int i = 0; i < a->rows; i++) {
-        for (int j = 0; j < a->cols; j++) {
-            a->data[i][j] *= scalar;
-        }
+void deepc_scale_in_place(deepc_matrix* matrix, float scalar) {
+    for (int i = 0; i < matrix->num_rows * matrix->num_cols; ++i) {
+        matrix->data[i] *= scalar;
     }
 }
 
 // Activation functions
-double sigmoid(double x) {
-    return 1.0 / (1.0 + exp(-x));
+float deepc_sigmoid(float x) {
+    return 1.0f / (1.0f + exp(-x));
 }
 
-double relu(double x) {
-    return x > 0 ? x : 0;
+float deepc_relu(float x) {
+    return x > 0.0f ? x : 0.0f;
 }
 
-double tanh_func(double x) {
+float deepc_tanh(float x) {
     return tanh(x);
 }
 
 // Helper function to check matrix for NaN values
-int matrix_has_nan(const Matrix* m) {
-    if (!m) return 0;
-    
-    for (int i = 0; i < m->rows; i++) {
-        for (int j = 0; j < m->cols; j++) {
-            if (isnan(m->data[i][j])) {
-                return 1;
-            }
+bool deepc_matrix_has_nan(deepc_matrix matrix) {
+    for (int i = 0; i < matrix.num_rows * matrix.num_cols; ++i) {
+        if (isnan(matrix.data[i])) {
+            return true;
         }
     }
-    return 0;
+
+    return false;
 }
 
-
 // Extract features from dataset (exclude label column)
-Matrix* get_features(const Matrix* data_with_labels, int label_column) {
-    MATRIX_CHECK(data_with_labels != NULL, "Data matrix cannot be NULL");
-    MATRIX_CHECK(label_column >= 0 && label_column < data_with_labels->cols, 
-                "Label column out of bounds");
-    
-    int num_samples = data_with_labels->rows;
-    int num_features = data_with_labels->cols - 1;
-    
-    Matrix* features = create_matrix(num_samples, num_features);
-    
-    for (int i = 0; i < num_samples; i++) {
+deepc_error deepc_features(deepc_matrix* dest, deepc_matrix labeled_data, 
+    int label_column) 
+{
+    int num_samples = labeled_data.num_rows;
+    int num_features = labeled_data.num_cols - 1;
+
+    deepc_error err = deepc_initialize_matrix(dest, num_samples, num_features);
+    if (err) {
+        return err;
+    }
+
+    for (int i = 0; i < num_samples; ++i) {
         int feature_idx = 0;
-        for (int j = 0; j < data_with_labels->cols; j++) {
+        for (int j = 0; j < labeled_data.num_cols; ++j) {
             if (j != label_column) {
-                features->data[i][feature_idx] = data_with_labels->data[i][j];
-                feature_idx++;
+                DEEPC_MATRIX_AT(*features, i, feature_idx) = 
+                    DEEPC_MATRIX_AT(*labeled_data, i, j);
+                ++feature_idx;
             }
         }
     }
-    
-    return features;
+  
+    return DEEPC_SUCCESS;
 }
 
 // Extract labels from dataset
-Matrix* get_labels(const Matrix* data_with_labels, int label_column) {
-    MATRIX_CHECK(data_with_labels != NULL, "Data matrix cannot be NULL");
-    MATRIX_CHECK(label_column >= 0 && label_column < data_with_labels->cols, 
-                "Label column out of bounds");
+deepc_error deepc_labels(deepc_matrix* dest, deepc_matrix labeled_data, 
+    int label_column) 
+{
+    int num_samples = labeled_data.num_rows;
     
-    int num_samples = data_with_labels->rows;
-    Matrix* labels = create_matrix(num_samples, 1);
-    
-    for (int i = 0; i < num_samples; i++) {
-        labels->data[i][0] = data_with_labels->data[i][label_column];
+    deepc_error err = deepc_initialize_matrix(dest, num_samples, 1);
+    if (err) {
+        return err;
     }
-    
-    return labels;
+
+    for (int i = 0; i < num_samples; ++i) {
+        DEEPC_MATRIX_AT(*dest, i, 0) = DEEPC_MATRIX_AT(labeled_data, i, 
+            label_column);
+    }
+
+    return DEEPC_SUCCESS;
 }
 
 // Print class distribution
-void print_class_distribution(const Matrix* labels) {
-    MATRIX_CHECK(labels != NULL, "Labels matrix cannot be NULL");
-    MATRIX_CHECK(labels->cols == 1, "Labels must be a single column");
-    
-    int num_samples = labels->rows;
+deepc_error deepc_print_class_distribution(deepc_matrix labels) {
+    int num_samples = labels.num_rows;
     
     // Count classes (assuming classes are 0,1,2,...)
     int max_class = 0;
-    for (int i = 0; i < num_samples; i++) {
-        int current_class = (int)labels->data[i][0];
+    for (int i = 0; i < num_samples; ++i) {
+        int current_class = (int)DEEPC_MATRIX_AT(*labels, i, 0);
         if (current_class > max_class) {
             max_class = current_class;
         }
     }
     
     int num_classes = max_class + 1;
+
     int* class_counts = (int*)calloc(num_classes, sizeof(int));
+    if (class_counts == NULL) {
+        return DEEPC_ALLOCATION_FAILED;
+    }
     
     // Count each class
-    for (int i = 0; i < num_samples; i++) {
-        int class_label = (int)labels->data[i][0];
+    for (int i = 0; i < num_samples; ++i) {
+        int class_label = (int)DEEPC_MATRIX_AT(*labels, i, 0);
         if (class_label >= 0 && class_label < num_classes) {
-            class_counts[class_label]++;
+            ++class_counts[class_label];
         }
     }
     
@@ -432,10 +424,11 @@ void print_class_distribution(const Matrix* labels) {
     printf("Class\tCount\tPercentage\n");
     printf("----------------------------\n");
     
-    for (int i = 0; i < num_classes; i++) {
-        double percentage = (double)class_counts[i] / num_samples * 100.0;
+    for (int i = 0; i < num_classes; ++i) {
+        float percentage = (float)class_counts[i] / num_samples * 100.0f;
         printf("%d\t%d\t%.1f%%\n", i, class_counts[i], percentage);
     }
     
     free(class_counts);
+    return DEEPC_SUCCESS;
 }
