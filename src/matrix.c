@@ -129,9 +129,6 @@ void deepc_set_matrix_col(deepc_matrix* dest, int col_pos, deepc_matrix col) {
 deepc_error deepc_sum_matrices(deepc_matrix* rslt, deepc_matrix lhs, 
     deepc_matrix rhs) 
 {
-    DEEPC_ASSERT(lhs.num_rows == rhs.num_rows && lhs.num_cols == rhs.num_cols, 
-        "Matrices must have the same number of rows and columns");
-
     deepc_error err = deepc_initialize_matrix(rslt, lhs.num_rows, lhs.num_cols);
     if (err) {
         return err;
@@ -147,9 +144,6 @@ deepc_error deepc_sum_matrices(deepc_matrix* rslt, deepc_matrix lhs,
 deepc_error deepc_subtract_matrices(deepc_matrix* rslt , deepc_matrix lhs, 
     deepc_matrix rhs) 
 {
-    DEEPC_ASSERT(lhs.num_rows == rhs.num_rows && lhs.num_cols == rhs.num_cols, 
-        "Matrices must have the same number of rows and columns");
-
     deepc_error err = deepc_initialize_matrix(rslt, lhs.num_rows, lhs.num_cols);
     if (err) {
         return err;
@@ -165,9 +159,6 @@ deepc_error deepc_subtract_matrices(deepc_matrix* rslt , deepc_matrix lhs,
 deepc_error deepc_hadamard_multiply_matrices(deepc_matrix* rslt, 
     deepc_matrix lhs, deepc_matrix rhs) 
 {
-    DEEPC_ASSERT(lhs.num_rows == rhs.num_rows && lhs.num_cols == rhs.num_cols, 
-        "Matrices must have the same number of rows and columns");
-
     deepc_error err = deepc_initialize_matrix(rslt, lhs.num_rows, lhs.num_cols);
     if (err) {
         return err;
