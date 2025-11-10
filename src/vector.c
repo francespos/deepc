@@ -65,7 +65,7 @@ float* deepc_scale_vector(const float* v, unsigned int n, float scalar) {
     return rslt;
 }
 
-float deepc_dot(const float* lhs, const float* rhs, unsigned int n) {
+float deepc_vector_dot(const float* lhs, const float* rhs, unsigned int n) {
     float rslt = 0.0f;
     for (unsigned int i = 0; i < n; ++i) {
         rslt += lhs->data[i] * rhs->data[i];
@@ -83,5 +83,5 @@ bool deepc_are_vectors_equal(const float* lhs, const float* rhs,
         }
     }
 
-    return false;
+    return true;
 }
