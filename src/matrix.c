@@ -1,22 +1,23 @@
 #include "deepc/matrix.h"
 
-void deepc_mat_sum(float* rslt, const float* lhs, const float* rhs, size_t n) 
+void deepc_matrix_sum(float* rslt, const float* m1, const float* m2, size_t n) 
 {
     for (size_t i = 0; i < n; ++i) 
     {
-        rslt[i] = lhs[i] + rhs[i];
+        rslt[i] = m1[i] + m2[i];
     }
 }
 
-void deepc_mat_sub(float* rslt, const float* lhs, const float* rhs, size_t n) 
+void deepc_matrix_subtract(float* rslt, const float* m1, const float* m2, 
+    size_t n) 
 {
     for (size_t i = 0; i < n; ++i) 
     {
-        rslt[i] = lhs[i] - rhs[i];
+        rslt[i] = m1[i] - m2[i];
     }
 }
 
-void deepc_mat_scale(float* rslt, const float* m, size_t n, float scalar) 
+void deepc_matrix_scale(float* rslt, const float* m, size_t n, float scalar) 
 {
     for (size_t i = 0; i < n; ++i) 
     {
@@ -24,46 +25,47 @@ void deepc_mat_scale(float* rslt, const float* m, size_t n, float scalar)
     }
 }
 
-void deepc_mat_hprod(float* rslt, const float* lhs, const float* rhs, size_t n)
+void deepc_matrix_hadamard_product(float* rslt, const float* m1, 
+    const float* m2, size_t n)
 {
     for (size_t i = 0; i < n; ++i) 
     {
-        rslt[i] = lhs[i] * rhs[i];
+        rslt[i] = m1[i] * m2[i];
     }
 }
 
-void deepc_mat_mul(float* rslt, const float* lhs, const float* rhs, size_t m, 
-    size_t n, size_t p)
+void deepc_matrix_multiplication(float* rslt, const float* m1, const float* m2, 
+    size_t nr, size_t n, size_t nc)
 {
-    for (size_t i = 0; i < m; ++i) 
+    for (size_t i = 0; i < nr; ++i) 
     {
-        for (size_t j = 0; j < p; ++j) 
+        for (size_t j = 0; j < nc; ++j) 
         {
-            rslt[i * p + j] = 0.0f;
+            rslt[i * nc + j] = 0.0f;
 
             for (size_t k = 0; k < n; ++k) 
             {
-                rslt[i * p + j] += lhs[i * n + k] * rhs[k * p + j]; 
+                rslt[i * nc + j] += m1[i * n + k] * m2[k * nc + j]; 
             }
         }
     }
 }
 
-void deepc_mat_vec_mul(float* rslt, const float* lhs, const float* rhs, 
-    size_t m, size_t n)
+void deepc_matrix_vector_multiplication(float* rslt, const float* m, 
+    const float* v, size_t nr, size_t n)
 {
-    for (size_t i = 0; i < m; ++i)
+    for (size_t i = 0; i < nr; ++i)
     {
         rslt[i] = 0.0f;
 
         for (size_t j = 0; j < n; ++j) 
         {
-            rslt[i] += lhs[i * n + j] * rhs[j];
+            rslt[i] += m[i * n + j] * v[j];
         }
     }
 }
 
-void deepc_mat_transpose(float* rslt, const float* m, size_t nr, size_t nc) 
+void deepc_matrix_transpose(float* rslt, const float* m, size_t nr, size_t nc) 
 {
     for (size_t i = 0; i < nr; ++i) 
     {

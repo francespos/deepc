@@ -1,1 +1,2 @@
-add_executable(test test.c)
+add_executable(vector vector.c)
+target_link_libraries(vector PRIVATE deepc)
