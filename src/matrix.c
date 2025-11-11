@@ -34,7 +34,7 @@ void deepc_matrix_hadamard_product(float* rslt, const float* m1,
     }
 }
 
-void deepc_matrix_multiplication(float* rslt, const float* m1, const float* m2, 
+void deepc_matrix_multiply(float* rslt, const float* m1, const float* m2, 
     size_t nr, size_t n, size_t nc)
 {
     for (size_t i = 0; i < nr; ++i) 
@@ -51,8 +51,8 @@ void deepc_matrix_multiplication(float* rslt, const float* m1, const float* m2,
     }
 }
 
-void deepc_matrix_vector_multiplication(float* rslt, const float* m, 
-    const float* v, size_t nr, size_t n)
+void deepc_matrix_vector_multiply(float* rslt, const float* m, const float* v, 
+    size_t nr, size_t n)
 {
     for (size_t i = 0; i < nr; ++i)
     {
