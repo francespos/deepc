@@ -1,4 +1,4 @@
-#include <deepc/layers.h>
+#include <deepc/layer.h>
 
 void deepc_dense_layer_initialize(deepc_layer* layer, float* weights, 
     float* biases, size_t input_size, size_t output_size, 
@@ -18,453 +18,58 @@ void deepc_dense_layer_initialize(deepc_layer* layer, float* weights,
 void deepc_dense_layer_forward(float* output, float* z, 
     const deepc_layer* layer, const float* input)
 {
-    deepc_matrix_affine_transform(output, layer->weights, input, layer->biases, 
-        layer->output_size, layer->input_size);
+    size_t nr = layer->output_size;
+    size_t nc = layer->input_size;
 
-    deepc_vector_transform(output, layer->activation, z, layer->output_size);
-}
-
-// CORRECTED Forward pass through a single layer
-// In layers.c - REPLACE the forward_pass function with this:
-Matrix* forward_pass(Layer* layer, const Matrix* input) {
-    if (!layer || !input) {
-        printf("ERROR: Layer or input is NULL in forward_pass\n");
-        return NULL;
-    }
-    
-    if (input->cols != layer->input_size) {
-        printf("ERROR: Input dimension mismatch in forward_pass: ");
-        printf("expected %d, got %d\n", layer->input_size, input->cols);
-        return NULL;
-    }
-    
-    // Store input for backpropagation
-    if (layer->input) free_matrix(layer->input);
-    layer->input = copy_matrix(input);
-    
-    // z = input * weights^T + bias
-    // input: [batch_size, input_size] 
-    // weights: [output_size, input_size]
-    // weights^T: [input_size, output_size]
-    // z: [batch_size, output_size]
-    
-    Matrix* weights_transpose = transpose(layer->weights);
-    if (!weights_transpose) {
-        printf("ERROR: Failed to transpose weights\n");
-        return NULL;
-    }
-    
-    Matrix* z = dot(input, weights_transpose);
-    free_matrix(weights_transpose);
-    
-    if (!z) {
-        printf("ERROR: Dot product failed in forward_pass\n");
-        return NULL;
-    }
-    
-    // Add bias (broadcast to each sample in batch)
-    for (int i = 0; i < z->rows; i++) {
-        for (int j = 0; j < z->cols; j++) {
-            z->data[i][j] += layer->biases->data[j][0];
+    for (size_t i = 0; i < nr; ++i)
+    {
+        z[i] = layer->biases[i];
+        
+        for (size_t j = 0; j < nc; ++j)
+        {
+            z[i] += layer->weights[i * nc + j] * input[j]; 
         }
-    }
-    
-    // Store z for backpropagation
-    if (layer->z) free_matrix(layer->z);
-    layer->z = copy_matrix(z);
-    
-    // Apply activation function
-    Matrix* output = apply_activation(z, layer->activation);
-    free_matrix(z);
-    
-    if (!output) {
-        printf("ERROR: Activation function failed\n");
-        return NULL;
-    }
-    
-    // Store output
-    if (layer->output) free_matrix(layer->output);
-    layer->output = copy_matrix(output);
-    
-    return output;
-}
 
-// Backward pass through a single layer
-Matrix* backward_pass(Layer* layer, const Matrix* gradient) {
-    LAYER_CHECK(layer != NULL, "Layer cannot be NULL");
-    LAYER_CHECK(gradient != NULL, "Gradient cannot be NULL");
-    LAYER_CHECK(layer->z != NULL, "Layer cache is empty - run forward pass first");
-    LAYER_CHECK(layer->input != NULL, "Layer input cache is empty");
-    
-    // gradient: dL/doutput [batch_size, output_size]
-    
-    // 1. Compute activation derivative: doutput/dz
-    Matrix* activation_deriv = apply_activation_derivative(layer->z, layer->activation);
-    
-    // 2. Compute delta: dL/dz = dL/doutput * doutput/dz [batch_size, output_size]
-    Matrix* delta = create_matrix(gradient->rows, gradient->cols);
-    for (int i = 0; i < gradient->rows; i++) {
-        for (int j = 0; j < gradient->cols; j++) {
-            delta->data[i][j] = gradient->data[i][j] * activation_deriv->data[i][j];
-        }
-    }
-    
-    // 3. Compute weight gradients: dL/dW = delta^T * input / batch_size
-    Matrix* input_transpose = transpose(layer->input);
-    for (int i = 0; i < layer->dweights->rows; i++) {
-        for (int j = 0; j < layer->dweights->cols; j++) {
-            double sum = 0.0;
-            for (int k = 0; k < delta->rows; k++) {
-                sum += delta->data[k][i] * input_transpose->data[j][k];
-            }
-            layer->dweights->data[i][j] = sum / delta->rows;
-        }
-    }
-    free_matrix(input_transpose);
-    
-    // 4. Compute bias gradients: dL/db = mean(delta, axis=0)
-    for (int i = 0; i < layer->dbiases->rows; i++) {
-        double sum = 0.0;
-        for (int k = 0; k < delta->rows; k++) {
-            sum += delta->data[k][i];
-        }
-        layer->dbiases->data[i][0] = sum / delta->rows;
-    }
-    
-    // 5. Compute gradient for previous layer: dL/dinput = delta * weights
-    Matrix* prev_gradient = dot(delta, layer->weights);
-    
-    // Cleanup
-    free_matrix(activation_deriv);
-    free_matrix(delta);
-    
-    return prev_gradient;
-}
-
-// Apply activation function to matrix
-Matrix* apply_activation(const Matrix* input, Activation activation) {
-    LAYER_CHECK(input != NULL, "Input matrix cannot be NULL");
-    
-    Matrix* output = create_matrix(input->rows, input->cols);
-    LAYER_CHECK(output != NULL, "Failed to create activation output matrix");
-    
-    switch (activation) {
-        case LINEAR:
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    output->data[i][j] = input->data[i][j];
-                }
-            }
-            break;
-            
-        case SIGMOID:
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    output->data[i][j] = 1.0 / (1.0 + exp(-input->data[i][j]));
-                }
-            }
-            break;
-            
-        case RELU:
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    output->data[i][j] = input->data[i][j] > 0 ? input->data[i][j] : 0;
-                }
-            }
-            break;
-            
-        case TANH:
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    output->data[i][j] = tanh(input->data[i][j]);
-                }
-            }
-            break;
-            
-        case SOFTMAX:
-            for (int i = 0; i < input->rows; i++) {
-                double max_val = -INFINITY;
-                double sum = 0.0;
-                
-                // Find max for numerical stability
-                for (int j = 0; j < input->cols; j++) {
-                    if (input->data[i][j] > max_val) {
-                        max_val = input->data[i][j];
-                    }
-                }
-                
-                // Calculate exponentials and sum
-                for (int j = 0; j < input->cols; j++) {
-                    output->data[i][j] = exp(input->data[i][j] - max_val);
-                    sum += output->data[i][j];
-                }
-                
-                // Normalize
-                for (int j = 0; j < input->cols; j++) {
-                    output->data[i][j] /= sum;
-                }
-            }
-            break;
-    }
-    
-    return output;
-}
-
-// Apply activation derivative
-Matrix* apply_activation_derivative(const Matrix* input, Activation activation) {
-    LAYER_CHECK(input != NULL, "Input matrix cannot be NULL");
-    
-    Matrix* derivative = create_matrix(input->rows, input->cols);
-    LAYER_CHECK(derivative != NULL, "Failed to create activation derivative matrix");
-    
-    switch (activation) {
-        case LINEAR:
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    derivative->data[i][j] = 1.0;
-                }
-            }
-            break;
-            
-        case SIGMOID:
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    double sig = 1.0 / (1.0 + exp(-input->data[i][j]));
-                    derivative->data[i][j] = sig * (1 - sig);
-                }
-            }
-            break;
-            
-        case RELU:
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    derivative->data[i][j] = input->data[i][j] > 0 ? 1.0 : 0.0;
-                }
-            }
-            break;
-            
-        case TANH:
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    double tanh_val = tanh(input->data[i][j]);
-                    derivative->data[i][j] = 1 - tanh_val * tanh_val;
-                }
-            }
-            break;
-            
-        case SOFTMAX:
-            // For softmax, we assume the derivative is handled in the loss function
-            // This is typically used with categorical crossentropy
-            for (int i = 0; i < input->rows; i++) {
-                for (int j = 0; j < input->cols; j++) {
-                    derivative->data[i][j] = 1.0;
-                }
-            }
-            break;
-    }
-    
-    return derivative;
-}
-
-// Initialize weights using Xavier initialization
-void initialize_weights_xavier(Matrix* weights, int input_size) {
-    LAYER_CHECK(weights != NULL, "Weights matrix cannot be NULL");
-    
-    static int seeded = 0;
-    if (!seeded) {
-        srand(time(NULL));
-        seeded = 1;
-    }
-    
-    double scale = sqrt(2.0 / (input_size + weights->rows));
-    
-    for (int i = 0; i < weights->rows; i++) {
-        for (int j = 0; j < weights->cols; j++) {
-            weights->data[i][j] = ((double)rand() / RAND_MAX - 0.5) * 2 * scale;
-        }
+        output[i] = layer->activation(z[i]);
     }
 }
 
-// Add these functions to the end of layers.c
+void deepc_dense_layer_backward(float* delta, const deepc_layer* layer, 
+    const float* forward_delta, const float* z)
+{
+    size_t nr = layer->output_size;
+    size_t nc = layer->input_size;
 
-// Replace the load_layer function in layers.c with this:
+    for (size_t j = 0; j < nc; ++j)
+    {
+        delta[j] = 0.0f;
 
-// Replace the load_layer function in layers.c with this:
-// REPLACE the entire load_layer function with this:
+        for (size_t i = 0; i < nr; ++i)
+        {
+            delta[j] += w[j * nr + i] * forward_delta[i];
 
-// REPLACE the load_layer function in layers.c with this BULLETPROOF version:
-
-Layer* load_layer(FILE* file) {
-    if (!file) {
-        printf("ERROR: File is NULL in load_layer\n");
-        return NULL;
-    }
-    
-    char line[256];
-    
-    // Read and validate layer type
-    if (!fgets(line, sizeof(line), file)) {
-        printf("ERROR: Failed to read layer type\n");
-        return NULL;
-    }
-    line[strcspn(line, "\n")] = 0;
-    
-    if (strcmp(line, "DENSE") != 0) {
-        printf("ERROR: Unsupported layer type: '%s'\n", line);
-        return NULL;
-    }
-    
-    // Read layer name
-    if (!fgets(line, sizeof(line), file)) {
-        printf("ERROR: Failed to read layer name\n");
-        return NULL;
-    }
-    line[strcspn(line, "\n")] = 0;
-    char name[256];
-    strcpy(name, line);
-    
-    // Read layer parameters
-    int input_size, output_size, activation;
-    
-    if (!fgets(line, sizeof(line), file) || sscanf(line, "%d", &input_size) != 1) {
-        printf("ERROR: Failed to read input_size\n");
-        return NULL;
-    }
-    
-    if (!fgets(line, sizeof(line), file) || sscanf(line, "%d", &output_size) != 1) {
-        printf("ERROR: Failed to read output_size\n");
-        return NULL;
-    }
-    
-    if (!fgets(line, sizeof(line), file) || sscanf(line, "%d", &activation) != 1) {
-        printf("ERROR: Failed to read activation\n");
-        return NULL;
-    }
-    
-    printf("Loading layer: %s, input_size=%d, output_size=%d, activation=%d\n", 
-           name, input_size, output_size, activation);
-    
-    // Create layer
-    Layer* layer = Dense(output_size, activation, input_size);
-    if (!layer) {
-        printf("ERROR: Failed to create layer\n");
-        return NULL;
-    }
-    
-    // Set the saved name
-    if (layer->name) {
-        free(layer->name);
-    }
-    layer->name = malloc(strlen(name) + 1);
-    if (layer->name) {
-        strcpy(layer->name, name);
-    }
-    
-    // Read weights dimensions
-    if (!fgets(line, sizeof(line), file)) {
-        printf("ERROR: Failed to read weights dimensions\n");
-        free_layer(layer);
-        return NULL;
-    }
-    
-    int weights_rows, weights_cols;
-    if (sscanf(line, "%d %d", &weights_rows, &weights_cols) != 2) {
-        printf("ERROR: Failed to parse weights dimensions: %s\n", line);
-        free_layer(layer);
-        return NULL;
-    }
-    
-    printf("Loading weights: %d x %d\n", weights_rows, weights_cols);
-    
-    // Verify weights dimensions
-    if (weights_rows != layer->weights->rows || weights_cols != layer->weights->cols) {
-        printf("ERROR: Weights dimension mismatch: expected %dx%d, got %dx%d\n",
-               layer->weights->rows, layer->weights->cols, weights_rows, weights_cols);
-        free_layer(layer);
-        return NULL;
-    }
-    
-    // READ WEIGHTS - ONE PER LINE
-    for (int i = 0; i < weights_rows; i++) {
-        for (int j = 0; j < weights_cols; j++) {
-            if (!fgets(line, sizeof(line), file)) {
-                printf("ERROR: Failed to read weight at (%d, %d)\n", i, j);
-                free_layer(layer);
-                return NULL;
-            }
-            layer->weights->data[i][j] = atof(line);
         }
+        
+        delta[j] *= layer->activation_derivative(z[j]);
     }
-    
-    // Read biases dimensions
-    if (!fgets(line, sizeof(line), file)) {
-        printf("ERROR: Failed to read biases dimensions\n");
-        free_layer(layer);
-        return NULL;
-    }
-    
-    int biases_rows, biases_cols;
-    if (sscanf(line, "%d %d", &biases_rows, &biases_cols) != 2) {
-        printf("ERROR: Failed to parse biases dimensions: '%s'\n", line);
-        free_layer(layer);
-        return NULL;
-    }
-    
-    printf("Loading biases: %d x %d\n", biases_rows, biases_cols);
-    
-    // Verify biases dimensions
-    if (biases_rows != layer->biases->rows || biases_cols != layer->biases->cols) {
-        printf("ERROR: Biases dimension mismatch: expected %dx%d, got %dx%d\n",
-               layer->biases->rows, layer->biases->cols, biases_rows, biases_cols);
-        free_layer(layer);
-        return NULL;
-    }
-    
-    // READ BIASES - ONE PER LINE
-    for (int i = 0; i < biases_rows; i++) {
-        for (int j = 0; j < biases_cols; j++) {
-            if (!fgets(line, sizeof(line), file)) {
-                printf("ERROR: Failed to read bias at (%d, %d)\n", i, j);
-                free_layer(layer);
-                return NULL;
-            }
-            layer->biases->data[i][j] = atof(line);
-        }
-    }
-    
-    printf("Layer loaded successfully: %s\n", name);
-    return layer;
 }
-// Replace the save_layer function in layers.c with this:
 
-// REPLACE the save_layer function with this:
+void deepc_dense_layer_update(deepc_layer* layer, float learning_rate, 
+    const float* input, const float* delta)
+{
+    size_t nr = layer->output_size;
+    size_t nc = layer->input_size;
 
-void save_layer(Layer* layer, FILE* file) {
-    if (!layer || !file) {
-        printf("ERROR: Layer or file is NULL in save_layer\n");
-        return;
-    }
-    
-    // Save layer metadata
-    fprintf(file, "DENSE\n");
-    fprintf(file, "%s\n", layer->name);
-    fprintf(file, "%d\n", layer->input_size);
-    fprintf(file, "%d\n", layer->output_size);
-    fprintf(file, "%d\n", layer->activation);
-    
-    // Save weights - ONE NUMBER PER LINE for reliable reading!
-    fprintf(file, "%d %d\n", layer->weights->rows, layer->weights->cols);
-    for (int i = 0; i < layer->weights->rows; i++) {
-        for (int j = 0; j < layer->weights->cols; j++) {
-            fprintf(file, "%.17g\n", layer->weights->data[i][j]);
+    for (size_t i = 0; i < nr; ++i)
+    {
+        for (size_t j = 0; j < nc; ++j)
+        {
+            layer->weights[i * nc + j] += learning_rate * input[j] * delta[j];
         }
     }
-    
-    // Save biases - ONE NUMBER PER LINE for reliable reading!
-    fprintf(file, "%d %d\n", layer->biases->rows, layer->biases->cols);
-    for (int i = 0; i < layer->biases->rows; i++) {
-        for (int j = 0; j < layer->biases->cols; j++) {
-            fprintf(file, "%.17g\n", layer->biases->data[i][j]);
-        }
+
+    for (size_t j = 0; j < nc; ++j)
+    {
+        layer->biases[j] += learning_rate * delta[j];
     }
 }

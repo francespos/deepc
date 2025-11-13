@@ -32,11 +32,11 @@ void deepc_dense_layer_initialize(deep_layer* layer, float* weights,
 void deepc_dense_layer_forward(float* output, float* z, 
     const deepc_layer* layer, const float* input);
 
-void deepc_dense_layer_backward(float* input_error, const deepc_layer* layer, 
-    const float* output_error, const float* z);
+void deepc_dense_layer_backward(float* delta, const deepc_layer* layer, 
+    const float* forward_delta, const float* z);
 
 void deepc_dense_layer_update(deepc_layer* layer, float learning_rate, 
-    const float* error);
+    const float* input, const float* delta);
 
 #ifdef __cplusplus
 }
