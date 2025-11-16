@@ -46,13 +46,11 @@ void deepc_dense_layer_backward(float* delta, const deepc_layer* layer,
 
     for (size_t i = 0; i < nr; ++i)
     {
-        // Harmard before propogating
         float activation_grad = layer->activation_derivative(z[i]);
         float delta_i = forward_delta[i] * activation_grad;
         
         for (size_t j = 0; j < nc; ++j)
         {
-            // Accumulate gradients for previous layer
             delta[j] += layer->weights[i * nc + j] * delta_i;
         }
     }
@@ -68,10 +66,9 @@ void deepc_dense_layer_update(deepc_layer* layer, float learning_rate,
     {
         for (size_t j = 0; j < nc; ++j)
         {
-            // Should use gradient descent (subtract)
             layer->weights[i * nc + j] -= learning_rate * input[j] * delta[i];
         }
-        // Update biases (delta[i])
+
         layer->biases[i] -= learning_rate * delta[i];
     }
 }

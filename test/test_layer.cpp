@@ -22,7 +22,7 @@ const float input[] = {1.0f, -2.0f, 3.0f};
 float z[2];
 float output[2];
 
-void matvec_mul(float* rslt, const float* m, const float* v, size_t nr, 
+void mat_vec_mul(float* rslt, const float* m, const float* v, size_t nr, 
     size_t n)
 {
     for (size_t i = 0; i < nr; ++i)
@@ -66,7 +66,7 @@ void test_dense_layer_forward()
     layer.forward(output, z, &layer, input); 
 
     float true_z[2]; 
-    matvec_mul(true_z, weights, input, output_size, input_size);
+    mat_vec_mul(true_z, weights, input, output_size, input_size);
     vec_sum(true_z, true_z, biases, 2);
 
     assert(deepc_float_arrays_equal(z, true_z, 2, epsilon));
