@@ -82,9 +82,9 @@ void test_dense_layer_backward()
 {
     layer.forward(output, z, &layer, input);
     
+    float delta[input_size];
     float forward_delta[] = {0.5f, -0.5f};
     
-    float delta[input_size];
     layer.backward(delta, &layer, forward_delta, z);
     
     float expected_delta[input_size] = {0.0f, 0.0f, 0.0f};
@@ -100,37 +100,39 @@ void test_dense_layer_backward()
         }
     }
     
-    assert(deepc_float_arrays_equal(delta, expected_delta, input_size, epsilon));
+    assert(deepc_float_arrays_equal(delta, expected_delta, input_size, 
+        epsilon));
 }
 
 void test_dense_layer_update()
 {
     float original_weights[6];
-    float original_biases[2];
     vec_copy(original_weights, weights, 6);
+
+    float original_biases[2];
     vec_copy(original_biases, biases, 2);
-    
 
     float learning_rate = 0.1f;
     float delta[] = {0.2f, -0.3f};
     
     layer.update(&layer, learning_rate, input, delta);
-    
 
     float expected_weights[6];
-    float expected_biases[2];
     vec_copy(expected_weights, original_weights, 6);
+
+    float expected_biases[2];
     vec_copy(expected_biases, original_biases, 2);
     
     for (size_t i = 0; i < output_size; ++i)
     {
         for (size_t j = 0; j < input_size; ++j)
         {
-            expected_weights[i * input_size + j] -= learning_rate * input[j] * delta[i];
+            expected_weights[i * input_size + j] -= learning_rate * input[j] * 
+                delta[i];
         }
+
         expected_biases[i] -= learning_rate * delta[i];
     }
-    
 
     assert(deepc_float_arrays_equal(weights, expected_weights, 6, epsilon));  
     assert(deepc_float_arrays_equal(biases, expected_biases, 2, epsilon));
@@ -144,6 +146,4 @@ int main()
     test_dense_layer_forward();
     test_dense_layer_backward();
     test_dense_layer_update();
-    
-    return 0;
 }
