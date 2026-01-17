@@ -15,8 +15,8 @@ public:
 
     ~Vector();
 
-    float& operator[](size_t pos) { return data_[pos]; }
-    float operator[](size_t pos) const { return data_[pos]; }
+    float& operator()(size_t pos) { return data_[pos]; }
+    float operator()(size_t pos) const { return data_[pos]; }
 
     bool operator==(const Vector& other) const;
     bool operator!=(const Vector& other) const;
@@ -41,7 +41,7 @@ private:
     size_t size_;
 };
 
-Vector operator*(float scalar, const Vector& v) { return v * scalar; }
+Vector operator*(float scalar, const Vector& v);
 
 } // namespace deepc
 

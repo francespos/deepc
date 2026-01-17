@@ -1,15 +1,15 @@
 #include <deepc/Vector.hpp>
+#include <deepc/float.hpp>
 #include <cassert>
+#include <cmath>
 
 namespace deepc {
 
 Vector::Vector(std::initializer_list<float> il)
     : data_(new float[il.size()]), size_(il.size()) {
-    float* data_ptr = data_;   
-
-    for (float entry : il) {
-        *data_ptr = entry;
-        ++data_ptr; 
+    float* p = data_;   
+    for (float elem : il) {
+        *(p++) = elem;
     }
 }
 
@@ -20,21 +20,18 @@ Vector::Vector(const Vector& other)
     }
 }
 
-Vector::Vector(Vector&& other) 
-    : data_(other.data_), size_(other.size_) {
+Vector::Vector(Vector&& other) : data_(other.data_), size_(other.size_) {
     other.data_ = nullptr;
     other.size_ = 0;
 }
 
-Vector::~Vector() {
-    delete[] data_;
-}
+Vector::~Vector() { delete[] data_; }
 
 bool Vector::operator==(const Vector& other) const {
     assert(size_ == other.size_);
     
     for (size_t i = 0; i < size_; ++i) {
-        if (data_[i] != other.data_[i]) {
+        if (abs(data_[i] - other.data_[i]) > EPSILON) {
             return false;
         }
     }
@@ -46,7 +43,7 @@ bool Vector::operator!=(const Vector& other) const {
     assert(size_ == other.size_);
 
     for (size_t i = 0; i < size_; ++i) {
-        if (data_[i] != other.data_[i]) {
+        if (abs(data_[i] - other.data_[i]) > EPSILON) {
             return true;
         }
     }
@@ -123,6 +120,10 @@ float Vector::operator*(const Vector& other) const {
     }
 
     return rslt;
+}
+
+Vector operator*(float scalar, const Vector& v) { 
+    return v * scalar; 
 }
 
 } // namespace deepc
