@@ -1,48 +1,37 @@
 #ifndef DEEPC_MATRIX_HPP
 #define DEEPC_MATRIX_HPP
 
-#include <deepc/Vector.hpp>
 #include <cstddef>
-#include <initializer_list>
 
 namespace deepc {
 
 class Matrix {
 public:
-    Matrix(std::initializer_list<float> il, size_t nr, size_t nc);
+    Matrix(std::size_t nrows, std::size_t ncols);
 
     Matrix(const Matrix& other);
-    Matrix(Matrix&& other);
+    Matrix& operator=(const Matrix& other);
 
-    ~Matrix();
+    Matrix(Matrix&& other) noexcept;
+    Matrix& operator=(Matrix&& other) noexcept;
 
-    float& operator()(size_t r, size_t c) { return data_[r * nc_ + c]; }
-    float operator()(size_t r, size_t c) const { return data_[r * nc_ + c]; }
+    ~Matrix() noexcept;
 
-    bool operator==(const Matrix& other) const;
-    bool operator!=(const Matrix& other) const;
+    float* operator[](std::size_t row_pos);
+    const float* operator[](std::size_t row_pos) const;
 
-    Matrix& operator+=(const Matrix& other);
-    Matrix& operator-=(const Matrix& other);
-    Matrix& operator*=(float scalar);
-    Matrix& operator/=(float scalar);
+    bool operator==(const Matrix& other) const noexcept;
+    bool operator!=(const Matrix& other) const noexcept;
 
-    Matrix operator+(const Matrix& other) const;
-    Matrix operator-(const Matrix& other) const;
-    Matrix operator*(float other) const;
-    Matrix operator/(float other) const;
-
-    Matrix operator*(const Matrix& other) const;
-    Vector operator*(const Vector& other) const;
+    std::size_t nrows() const noexcept { return nrows_; }
+    std::size_t ncols() const noexcept { return ncols_; }
 
     float* data() { return data_; }
     const float* data() const { return data_; }
-    size_t num_rows() const { return nr_; }
-    size_t num_cols() const { return nc_; }
 private:
+    std::size_t nrows_;
+    std::size_t ncols_;
     float* data_;
-    size_t nr_;
-    size_t nc_;
 };
 
 } // namespace deepc

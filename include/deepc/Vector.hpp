@@ -20,20 +20,8 @@ public:
     float& operator[](std::size_t pos);
     float operator[](std::size_t pos) const;
 
-    bool operator==(const Vector& other) const;
-    bool operator!=(const Vector& other) const;
-
-    Vector& operator+=(const Vector& other);
-    Vector& operator-=(const Vector& other);
-    Vector& operator*=(float scalar) noexcept;
-    Vector& operator/=(float scalar) noexcept;
-
-    Vector operator+(const Vector& other) const;
-    Vector operator-(const Vector& other) const;
-    Vector operator*(float scalar) const;
-    Vector operator/(float scalar) const;
-
-    float operator*(const Vector& other) const;
+    bool operator==(const Vector& other) const noexcept;
+    bool operator!=(const Vector& other) const noexcept;
 
     std::size_t size() const noexcept { return size_; }
 
@@ -43,8 +31,6 @@ private:
     std::size_t size_;
     float* data_;
 };
-
-Vector operator*(float scalar, const Vector& v);
 
 } // namespace deepc
 

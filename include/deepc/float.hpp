@@ -3,7 +3,7 @@
 
 namespace deepc {
 
-extern const float EPSILON;
+constexpr float EPSILON = 1e-6f;
 
 } // namespace deepc
 

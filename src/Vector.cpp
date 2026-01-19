@@ -58,8 +58,10 @@ float Vector::operator[](std::size_t pos) const {
     return data_[pos];
 }
 
-bool Vector::operator==(const Vector& other) const {
-    assert(size_ == other.size_);
+bool Vector::operator==(const Vector& other) const noexcept {
+    if (size_ != other.size_) { 
+        return false; 
+    }
     
     for (std::size_t i = 0; i < size_; ++i) {
         if (std::abs(data_[i] - other.data_[i]) > EPSILON) {
@@ -70,8 +72,10 @@ bool Vector::operator==(const Vector& other) const {
     return true;
 }
 
-bool Vector::operator!=(const Vector& other) const {
-    assert(size_ == other.size_);
+bool Vector::operator!=(const Vector& other) const noexcept {
+    if (size_ != other.size_) {
+        return true;
+    }
 
     for (std::size_t i = 0; i < size_; ++i) {
         if (std::abs(data_[i] - other.data_[i]) > EPSILON) {
@@ -80,81 +84,6 @@ bool Vector::operator!=(const Vector& other) const {
     }
 
     return false;
-}
-
-Vector& Vector::operator+=(const Vector& other) {
-    assert(size_ == other.size_);
-
-    for (std::size_t i = 0; i < size_; ++i) {
-        data_[i] += other.data_[i];
-    }
-
-    return *this;
-}
-
-Vector& Vector::operator-=(const Vector& other) {
-    assert(size_ == other.size_);
-
-    for (std::size_t i = 0; i < size_; ++i) {
-        data_[i] -= other.data_[i];
-    }
-
-    return *this;
-}
-
-Vector& Vector::operator*=(float scalar) noexcept {
-    for (std::size_t i = 0; i < size_; ++i) {
-        data_[i] *= scalar;
-    }
-
-    return *this;
-}
-
-Vector& Vector::operator/=(float scalar) noexcept {
-    for (std::size_t i = 0; i < size_; ++i) {
-        data_[i] /= scalar;
-    }
-
-    return *this;
-}
-
-Vector Vector::operator+(const Vector& other) const {
-    Vector rslt(*this);
-    rslt += other;
-    return rslt;
-}
-
-Vector Vector::operator-(const Vector& other) const {
-    Vector rslt(*this);
-    rslt -= other;
-    return rslt;
-}
-
-Vector Vector::operator*(float scalar) const {
-    Vector rslt(*this);
-    rslt *= scalar;
-    return rslt;
-}
-
-Vector Vector::operator/(float scalar) const {
-    Vector rslt(*this);
-    rslt /= scalar;
-    return rslt;
-}
-
-float Vector::operator*(const Vector& other) const {
-    assert(size_ == other.size_);
-
-    float rslt = 0.0f;
-    for (std::size_t i = 0; i < size_; ++i) {
-        rslt += data_[i] * other.data_[i];
-    }
-
-    return rslt;
-}
-
-Vector operator*(float scalar, const Vector& v) { 
-    return v * scalar; 
 }
 
 } // namespace deepc

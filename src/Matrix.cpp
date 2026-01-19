@@ -1,40 +1,77 @@
 #include <deepc/Matrix.hpp>
 #include <deepc/float.hpp>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
 namespace deepc {
 
-Matrix::Matrix(std::initializer_list<float> il, size_t nr, size_t nc)
-    : data_(new float[nr * nc]), nr_(nr), nc_(nc) {
-    assert(il.size() == nr * nc);
-
-    float* p = data_;
-    for (auto elem : il) {
-        *(p++) = elem;
-    }
-}
+Matrix::Matrix(std::size_t nrows, std::size_t ncols) 
+    : nrows_(nrows), ncols_(ncols), data_(new float[nrows * ncols]) {}
 
 Matrix::Matrix(const Matrix& other) 
-    : data_(new float[other.nr_ * other.nc_]), nr_(other.nr_), nc_(other.nc_) {
-    for (size_t i = 0; i < nr_ * nc_; ++i) {
-        data_[i] = other.data_[i];
-    }
+    : nrows_(other.nrows_), ncols_(other.ncols_)
+    , data_(new float[nrows_ * ncols_]) {
+    std::copy(other.data_, other.data_ + nrows_ * ncols_, data_);
 }
 
-Matrix::Matrix(Matrix&& other) 
-    : data_(other.data_), nr_(other.nr_), nc_(other.nc_) {
+Matrix& Matrix::operator=(const Matrix& other) {
+    if (this != &other) {
+        delete[] data_;
+
+        nrows_ = other.nrows_;
+        ncols_ = other.ncols_;
+
+        data_ = new float[nrows_, ncols_];
+        std::copy(other.data_, other.data_ + nrows_ * ncols_, data_);
+    }
+
+    return *this;
+}
+
+Matrix::Matrix(Matrix&& other) noexcept 
+    : nrows_(other.nrows_), ncols_(other.ncols_)
+    , data_(other.data_) {
+    other.nrows_ = other.ncols_ = 0;
     other.data_ = nullptr;
-    other.nr_ = other.nc_ = 0;
+}
+
+Matrix& Matrix::operator=(Matrix&& other) noexcept {
+    if (this != &other) {
+        delete[] data_;
+        
+        nrows_ = other.nrows_;
+        other.nrows_ = 0;
+
+        ncols_ = other.ncols_;
+        other.ncols_ = 0;
+
+        data_ = other.data_;
+        other.data_ = nullptr;
+    }
+
+    return *this;
 }
 
 Matrix::~Matrix() { delete[] data_; }
 
-bool Matrix::operator==(const Matrix& other) const {
-    assert(nr_ == other.nr_ && nc_ == other.nc_);
+float* Matrix::operator[](std::size_t row_pos) {
+    assert(row_pos < nrows_);
+    return data_ + row_pos * ncols_;
+}
 
-    for (size_t i = 0; i < nr_ * nc_; ++i) {
-        if (abs(data_[i] - other.data_[i]) > EPSILON) {
+const float* Matrix::operator[](std::size_t row_pos) const {
+    assert(row_pos < nrows_);
+    return data_ + row_pos * ncols_;
+}
+
+bool Matrix::operator==(const Matrix& other) const noexcept {
+    if (nrows_ != other.nrows_ || ncols_ != other.ncols_) {
+        return false;
+    }
+
+    for (std::size_t i = 0; i < nrows_ * ncols_; ++i) {
+        if (std::abs(data_[i] - other.data_[i]) > EPSILON) {
             return false;
         }
     }
@@ -42,10 +79,12 @@ bool Matrix::operator==(const Matrix& other) const {
     return true;
 }
 
-bool Matrix::operator!=(const Matrix& other) const {
-    assert(nr_ == other.nr_ && nc_ == other.nc_);
+bool Matrix::operator!=(const Matrix& other) const noexcept {
+    if (nrows_ != other.nrows_ || ncols_ != other.ncols_) {
+        return true;
+    }
 
-    for (size_t i = 0; i < nr_ * nc_; ++i) {
+    for (size_t i = 0; i < nrows_ * ncols_; ++i) {
         if (abs(data_[i] - other.data_[i]) > EPSILON) {
             return true;
         }
