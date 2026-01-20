@@ -1,8 +1,6 @@
 #include <deepc/Matrix.hpp>
-#include <deepc/float.hpp>
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 
 namespace deepc {
 
@@ -63,34 +61,6 @@ float* Matrix::operator[](std::size_t row) {
 const float* Matrix::operator[](std::size_t row) const {
     assert(row < rows_);
     return data_ + row * cols_;
-}
-
-bool Matrix::operator==(const Matrix& other) const noexcept {
-    if (rows_ != other.rows_ || cols_ != other.cols_) {
-        return false;
-    }
-
-    for (std::size_t i = 0; i < rows_ * cols_; ++i) {
-        if (std::abs(data_[i] - other.data_[i]) > detail::EPSILON) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Matrix::operator!=(const Matrix& other) const noexcept {
-    if (rows_ != other.rows_ || cols_ != other.cols_) {
-        return true;
-    }
-
-    for (size_t i = 0; i < rows_ * cols_; ++i) {
-        if (abs(data_[i] - other.data_[i]) > detail::EPSILON) {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 } // namespace deepc

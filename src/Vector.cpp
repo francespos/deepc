@@ -59,32 +59,4 @@ float Vector::operator[](std::size_t pos) const {
     return data_[pos];
 }
 
-bool Vector::operator==(const Vector& other) const noexcept {
-    if (size_ != other.size_) { 
-        return false; 
-    }
-    
-    for (std::size_t i = 0; i < size_; ++i) {
-        if (std::abs(data_[i] - other.data_[i]) > detail::EPSILON) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Vector::operator!=(const Vector& other) const noexcept {
-    if (size_ != other.size_) {
-        return true;
-    }
-
-    for (std::size_t i = 0; i < size_; ++i) {
-        if (std::abs(data_[i] - other.data_[i]) > detail::EPSILON) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 } // namespace deepc

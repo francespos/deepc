@@ -2,7 +2,6 @@
 #define DEEPC_HPP
 
 #include <deepc/Activation.hpp>
-#include <deepc/DenseLayer.hpp>
 #include <deepc/float.hpp>
 #include <deepc/Layer.hpp>
 #include <deepc/Matrix.hpp>

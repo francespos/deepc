@@ -20,9 +20,6 @@ public:
     float& operator[](std::size_t pos);
     float operator[](std::size_t pos) const;
 
-    bool operator==(const Vector& other) const noexcept;
-    bool operator!=(const Vector& other) const noexcept;
-
     std::size_t size() const noexcept { return size_; }
 
     float* data() { return data_; }

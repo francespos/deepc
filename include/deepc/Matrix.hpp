@@ -20,12 +20,9 @@ public:
     float* operator[](std::size_t row);
     const float* operator[](std::size_t row) const;
 
-    bool operator==(const Matrix& other) const noexcept;
-    bool operator!=(const Matrix& other) const noexcept;
-
+    std::size_t size() const noexcept { return rows_ * cols_; }
     std::size_t rows() const noexcept { return rows_; }
     std::size_t cols() const noexcept { return cols_; }
-    std::size_t size() const noexcept { return rows_ * cols_; }
 
     float* data() { return data_; }
     const float* data() const { return data_; }
