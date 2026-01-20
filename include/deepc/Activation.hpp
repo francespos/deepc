@@ -14,21 +14,14 @@ extern const Activation SIGMOID;
 extern const Activation RELU;
 extern const Activation TANH;
 
-} // namespace deepc
-
-namespace deepc {
-namespace detail {
-
 float sigmoid(float x);
 float sigmoid_derivative(float x);
 
 float relu(float x);
 float relu_derivative(float x);
 
-float tanh(float x);
 float tanh_derivative(float x);
 
-} // namespace detail
 } // namespace deepc
 
 #endif // DEEPC_ACTIVATION_HPP

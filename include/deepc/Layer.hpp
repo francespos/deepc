@@ -9,8 +9,7 @@ namespace deepc {
 
 class Layer {
 public:
-    Layer(std::size_t output_size, std::size_t input_size, 
-        const Activation& activation);
+    Layer(std::size_t size, std::size_t input, const Activation& activation);
 
     Matrix weights() const { return weights_; }
     Vector biases() const { return biases_; }
@@ -19,7 +18,7 @@ public:
     Activation activation() const { return activation_; }
 
     Vector forward(const Vector& input);
-    Vector backward(const Vector& forward_delta) const;
+    Vector backward(const Vector& delta) const;
     void update(const Vector& input, const Vector& delta, float learning_rate);
 private:
     Matrix weights_;

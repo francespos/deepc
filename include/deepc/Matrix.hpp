@@ -26,6 +26,8 @@ public:
 
     float* data() { return data_; }
     const float* data() const { return data_; }
+
+    bool equal(const Matrix& other) const;
 private:
     std::size_t rows_;
     std::size_t cols_;

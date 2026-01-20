@@ -3,10 +3,9 @@
 
 namespace deepc {
 
-Layer::Layer(std::size_t output_size, std::size_t input_size, 
-    const Activation& activation) 
-    : weights_(output_size, input_size) , biases_(output_size), z_(output_size)
-    , activation_(activation) {}
+Layer::Layer(std::size_t size, std::size_t input, const Activation& activation) 
+    : weights_(size, input) , biases_(size), z_(size), activation_(activation) {
+}
 
 Vector Layer::forward(const Vector& input) {
     Vector output(weights_.rows());
@@ -22,18 +21,18 @@ Vector Layer::forward(const Vector& input) {
     return output;
 }
 
-Vector Layer::backward(const Vector& forward_delta) const {
-    Vector delta(weights_.cols());
-    std::fill(delta.data(), delta.data() + delta.size(), 0.0f);
+Vector Layer::backward(const Vector& delta) const {
+    Vector rslt(weights_.cols());
+    std::fill(rslt.data(), rslt.data() + rslt.size(), 0.0f);
 
     for (std::size_t i = 0; i < weights_.rows(); ++i) {
         for (std::size_t j = 0; j < weights_.cols(); ++j) {
-            delta[j] += weights_[i][j] * forward_delta[i] * 
+            rslt[j] += weights_[i][j] * delta[i] * 
                 activation_.derivative(z_[i]);
         }
     }
 
-    return delta;
+    return rslt;
 }
 
 void Layer::update(const Vector& input, const Vector& delta, 

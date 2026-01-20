@@ -24,6 +24,8 @@ public:
 
     float* data() { return data_; }
     const float* data() const { return data_; }
+
+    bool equal(const Vector& other) const;
 private:
     std::size_t size_;
     float* data_;

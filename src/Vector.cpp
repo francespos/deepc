@@ -59,4 +59,12 @@ float Vector::operator[](std::size_t pos) const {
     return data_[pos];
 }
 
+bool Vector::equal(const Vector& other) const {
+    if (size_ != other.size_) {
+        return false;
+    }
+
+    return std::equal(data_, data_ + size_, other.data_, deepc::equal);
+}
+
 } // namespace deepc
