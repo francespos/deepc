@@ -2,7 +2,6 @@
 #include <deepc/float.hpp>
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 
 namespace deepc {
 

@@ -1,4 +1,5 @@
-set(DEEPC_SRC Activation.cpp Layer.cpp Matrix.cpp Vector.cpp float.cpp)
+set(DEEPC_SRC Activation.cpp Layer.cpp Matrix.cpp Vector.cpp float.cpp 
+    Network.cpp)
 
 add_library(deepc STATIC ${DEEPC_SRC})
 set_property(TARGET deepc PROPERTY CXX_STANDARD 11)

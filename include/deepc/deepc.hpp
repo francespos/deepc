@@ -5,6 +5,7 @@
 #include <deepc/float.hpp>
 #include <deepc/Layer.hpp>
 #include <deepc/Matrix.hpp>
+#include <deepc/Network.hpp>
 #include <deepc/Vector.hpp>
 
 #endif // DEEPC_HPP

@@ -9,13 +9,14 @@ namespace deepc {
 
 class Layer {
 public:
-    Layer(std::size_t size, std::size_t input, const Activation& activation);
+    explicit Layer(std::size_t size, std::size_t input, 
+        const Activation& activation);
 
-    Matrix weights() const { return weights_; }
-    Vector biases() const { return biases_; }
+    const Matrix& weights() const { return weights_; }
+    const Vector& biases() const { return biases_; }
 
-    Vector z() const { return z_; }
-    Activation activation() const { return activation_; }
+    const Vector& z() const { return z_; }
+    const Activation& activation() const { return activation_; }
 
     Vector forward(const Vector& input);
     Vector backward(const Vector& delta) const;
