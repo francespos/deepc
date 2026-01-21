@@ -1,16 +1,16 @@
 #include <deepc/deepc.hpp>
 #include <cassert>
 
-// I don't want you to do unit test for know, I just want to be sure Layer
+// I don't want you to do unit test for know, I just want to be sure DenseLayer
 // class is written correctly
 
 // Write class' unit test here:
-// deepc::Vector test_dummy(deepc::Layer& layer) {}
+// deepc::Vector test_dummy(deepc::DenseLayer& layer) {}
 // ...
 
 int main() {    
     // Dummy values, initialize layer as you wish
-    deepc::Layer layer(4, 3, deepc::RELU);
+    deepc::DenseLayer layer(4, 3, deepc::RELU);
 
     // Run class' unit test here:
     //

@@ -10,22 +10,30 @@ Matrix::Matrix(std::size_t rows, std::size_t cols)
 
 Matrix::Matrix(const Matrix& other) 
     : rows_(other.rows_), cols_(other.cols_)
-    , data_(new float[other.rows_ * other.cols_]) {
+    , data_(new float[other.rows_ * other.cols_]) 
+{
     std::copy(other.data_, other.data_ + rows_ * cols_, data_);
 }
 
 Matrix& Matrix::operator=(const Matrix& other) {
-    assert(rows_ == other.rows_ && cols_ == other.cols_);
-
-    if (this != &other) {
-        std::copy(other.data_, other.data_ + rows_ * cols_, data_);
+    if (this == &other) {
+        return *this;
     }
 
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
+        delete[] data_;
+        rows_ = other.rows_;
+        cols_ = other.cols_;
+        data_ = new float[rows_ * cols_];
+    }
+
+    std::copy(other.data_, other.data_ + rows_ * cols_, data_);
     return *this;
 }
 
 Matrix::Matrix(Matrix&& other) noexcept 
-    : rows_(other.rows_), cols_(other.cols_), data_(other.data_) {
+    : rows_(other.rows_), cols_(other.cols_), data_(other.data_) 
+{
     other.rows_ = 0;
     other.cols_ = 0;
     other.data_ = nullptr;
@@ -61,11 +69,8 @@ const float* Matrix::operator[](std::size_t row) const {
 }
 
 bool Matrix::equal(const Matrix& other) const {
-    if (rows_ != other.rows_ || cols_ != other.cols_) {
-        return false;
-    }
-
-    return std::equal(data_, data_ + rows_ * cols_, other.data_, deepc::equal);
+    return (rows_ != other.rows_ || cols_ != other.cols_) ? false : 
+        std::equal(data_, data_ + rows_ * cols_, other.data_, deepc::equal);
 }
 
 } // namespace deepc

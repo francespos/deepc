@@ -9,22 +9,29 @@ Vector::Vector(std::size_t size)
     : size_(size), data_(new float[size]) {}
 
 Vector::Vector(const Vector& other)
-    : size_(other.size_), data_(new float[other.size_]) {
+    : size_(other.size_), data_(new float[other.size_]) 
+{
     std::copy(other.data_, other.data_ + size_, data_);
 }
 
 Vector& Vector::operator=(const Vector& other) {
-    assert(size_ == other.size_);
-
-    if (this != &other) {
-        std::copy(other.data_, other.data_ + size_, data_);
+    if (this == &other) {
+        return *this;
+    }
+    
+    if (size_ != other.size_) {
+        delete[] data_;
+        size_ = other.size_;
+        data_ = new float[size_];
     }
 
+    std::copy(other.data_, other.data_ + size_, data_);
     return *this;
 }
 
 Vector::Vector(Vector&& other) noexcept 
-    : size_(other.size_), data_(other.data_) {
+    : size_(other.size_), data_(other.data_) 
+{
     other.size_ = 0;
     other.data_ = nullptr;
 }
@@ -56,11 +63,8 @@ float Vector::operator[](std::size_t pos) const {
 }
 
 bool Vector::equal(const Vector& other) const {
-    if (size_ != other.size_) {
-        return false;
-    }
-
-    return std::equal(data_, data_ + size_, other.data_, deepc::equal);
+    return (size_ != other.size_) ? false : 
+        std::equal(data_, data_ + size_, other.data_, deepc::equal);
 }
 
 } // namespace deepc

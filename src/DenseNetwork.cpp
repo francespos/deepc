@@ -1,18 +1,17 @@
-#include <deepc/Network.hpp>
+#include <deepc/DenseNetwork.hpp>
 
 namespace deepc {
 
-Network::Network(std::size_t input) 
+DenseNetwork::DenseNetwork(std::size_t input) 
     : inputs_{ Vector(input) }, deltas_{ Vector(input) } {}
 
-void Network::add_layer(std::size_t size, const Activation& activation) {
-    Layer layer(size, inputs_.back().size(), activation);
-    layers_.push_back(layer);
+void DenseNetwork::add_layer(std::size_t size, const Activation& activation) {
+    layers_.push_back(DenseLayer(size, inputs_.back().size(), activation));
     inputs_.push_back(Vector(size));;
     deltas_.push_back(Vector(size));
 }
 
-const Vector& Network::forward(const Vector& input) {
+const Vector& DenseNetwork::forward(const Vector& input) {
     inputs_.front() = input;
 
     for (std::size_t i = 0; i < layers_.size(); ++i) {
@@ -22,7 +21,7 @@ const Vector& Network::forward(const Vector& input) {
     return inputs_.back();
 }
 
-const Vector& Network::backward(const Vector& delta) {
+const Vector& DenseNetwork::backward(const Vector& delta) {
     deltas_.back() = delta;
 
     for (std::size_t i = layers_.size(); i > 0; --i) {
@@ -32,7 +31,7 @@ const Vector& Network::backward(const Vector& delta) {
     return deltas_.front();
 }
 
-void Network::update(float learning_rate) {
+void DenseNetwork::update(float learning_rate) {
     for (std::size_t i = 0; i < layers_.size(); ++i) {
         layers_[i].update(inputs_[i], deltas_[i + 1], learning_rate);
     }

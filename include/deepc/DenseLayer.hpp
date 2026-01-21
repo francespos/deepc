@@ -1,5 +1,5 @@
-#ifndef DEEPC_LAYER_HPP
-#define DEEPC_LAYER_HPP
+#ifndef DEEPC_DENSE_LAYER_HPP
+#define DEEPC_DENSE_LAYER_HPP
 
 #include <deepc/Vector.hpp>
 #include <deepc/Matrix.hpp>
@@ -7,16 +7,10 @@
 
 namespace deepc {
 
-class Layer {
+class DenseLayer {
 public:
-    explicit Layer(std::size_t size, std::size_t input, 
+    explicit DenseLayer(std::size_t size, std::size_t input, 
         const Activation& activation);
-
-    const Matrix& weights() const { return weights_; }
-    const Vector& biases() const { return biases_; }
-
-    const Vector& z() const { return z_; }
-    const Activation& activation() const { return activation_; }
 
     Vector forward(const Vector& input);
     Vector backward(const Vector& delta) const;
@@ -24,11 +18,10 @@ public:
 private:
     Matrix weights_;
     Vector biases_;
-
     Vector z_;
     Activation activation_;
 };
 
 } // namespace deepc
 
-#endif // DEEPC_LAYER_HPP
+#endif // DEEPC_DENSE_LAYER_HPP
