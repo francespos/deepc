@@ -50,7 +50,7 @@ Vector& Vector::operator=(Vector&& other) noexcept {
     return *this;
 }
 
-Vector::~Vector() { delete[] data_; }
+Vector::~Vector() noexcept { delete[] data_; }
 
 float& Vector::operator[](std::size_t pos) {
     assert(pos < size_);
@@ -62,9 +62,13 @@ float Vector::operator[](std::size_t pos) const {
     return data_[pos];
 }
 
-bool Vector::equal(const Vector& other) const {
+bool Vector::operator==(const Vector& other) const {
     return (size_ != other.size_) ? false : 
         std::equal(data_, data_ + size_, other.data_, deepc::equal);
+}
+
+bool Vector::operator!=(const Vector& other) const {
+    return !(*this == other);
 }
 
 } // namespace deepc

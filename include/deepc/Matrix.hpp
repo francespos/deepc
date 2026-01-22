@@ -20,14 +20,15 @@ public:
     float* operator[](std::size_t row);
     const float* operator[](std::size_t row) const;
 
+    bool operator==(const Matrix& other) const;
+    bool operator!=(const Matrix& other) const;
+
     std::size_t size() const noexcept { return rows_ * cols_; }
     std::size_t rows() const noexcept { return rows_; }
     std::size_t cols() const noexcept { return cols_; }
 
     float* data() { return data_; }
     const float* data() const { return data_; }
-
-    bool equal(const Matrix& other) const;
 private:
     std::size_t rows_;
     std::size_t cols_;

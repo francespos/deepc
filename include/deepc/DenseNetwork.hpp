@@ -10,7 +10,10 @@ class DenseNetwork {
 public:
     explicit DenseNetwork(std::size_t input);
 
-    void add_layer(std::size_t size, const Activation& activation);
+    void add_layer(std::size_t size, const Activation& activation, 
+        FloatInitializer& weight_initializer, 
+        FloatInitializer& bias_initializer);
+
     const Vector& forward(const Vector& input);
     const Vector& backward(const Vector& delta);
     void update(float learning_rate);

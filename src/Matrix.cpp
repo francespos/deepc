@@ -56,7 +56,7 @@ Matrix& Matrix::operator=(Matrix&& other) noexcept {
     return *this;
 }
 
-Matrix::~Matrix() { delete[] data_; }
+Matrix::~Matrix() noexcept { delete[] data_; }
 
 float* Matrix::operator[](std::size_t row) {
     assert(row < rows_);
@@ -68,9 +68,13 @@ const float* Matrix::operator[](std::size_t row) const {
     return data_ + row * cols_;
 }
 
-bool Matrix::equal(const Matrix& other) const {
+bool Matrix::operator==(const Matrix& other) const {
     return (rows_ != other.rows_ || cols_ != other.cols_) ? false : 
         std::equal(data_, data_ + rows_ * cols_, other.data_, deepc::equal);
+}
+
+bool Matrix::operator!=(const Matrix& other) const {
+    return !(*this == other);
 }
 
 } // namespace deepc

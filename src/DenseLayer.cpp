@@ -4,9 +4,20 @@
 namespace deepc {
 
 DenseLayer::DenseLayer(std::size_t size, std::size_t input, 
-    const Activation& activation) 
+    const Activation& activation, 
+    FloatInitializer& weight_initializer, 
+    FloatInitializer& bias_initializer) 
     : weights_(size, input) , biases_(size), z_(size)
-    , activation_(activation) {}
+    , activation_(activation) 
+{
+    for (std::size_t i = 0; i < weights_.size(); ++i) {
+        weights_.data()[i] = weight_initializer.generate();
+    }
+
+    for (std::size_t i = 0; i < biases_.size(); ++i) {
+        biases_[i] = bias_initializer.generate();
+    }
+}
 
 Vector DenseLayer::forward(const Vector& input) {
     Vector output(weights_.rows());

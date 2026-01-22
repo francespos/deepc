@@ -22,10 +22,10 @@ void test_equal() {
     v2[0] = 1.0f;
     v2[1] = 2.0f;
 
-    assert(v1.equal(v2));
+    assert(v1 == v2);
 
     v2[1] = 1.5f;
-    assert(!v1.equal(v2));
+    assert(v1 != v2);
 }
 
 int main() {

@@ -1,5 +1,5 @@
-set(DEEPC_SRC Activation.cpp DenseLayer.cpp Matrix.cpp Vector.cpp float.cpp 
-    DenseNetwork.cpp)
+set(DEEPC_SRC Activation.cpp DenseLayer.cpp DenseNetwork.cpp float.cpp 
+    Matrix.cpp UniformXavier.cpp Vector.cpp)
 
 add_library(deepc STATIC ${DEEPC_SRC})
 set_property(TARGET deepc PROPERTY CXX_STANDARD 11)

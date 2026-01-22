@@ -20,12 +20,13 @@ public:
     float& operator[](std::size_t pos);
     float operator[](std::size_t pos) const;
 
+    bool operator==(const Vector& other) const;
+    bool operator!=(const Vector& other) const;
+
     std::size_t size() const noexcept { return size_; }
 
     float* data() { return data_; }
     const float* data() const { return data_; }
-
-    bool equal(const Vector& other) const;
 private:
     std::size_t size_;
     float* data_;
