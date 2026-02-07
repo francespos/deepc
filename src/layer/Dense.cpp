@@ -1,11 +1,11 @@
-#include <deepc/DenseLayer.hpp>
+#include <deepc/layer/Dense.hpp>
 #include <algorithm>
 
 namespace deepc {
+namespace layer {
 
-DenseLayer::DenseLayer(std::size_t size, std::size_t input, 
-    const Activation& activation, FloatGenerator& weight_generator, 
-    FloatGenerator& bias_generator) 
+Dense::Dense(std::size_t size, std::size_t input, const Activation& activation, 
+    scalar::Generator& weight_generator, scalar::Generator& bias_generator) 
     : weights_(size, input), biases_(size), z_(size), activation_(activation) {
     for (std::size_t i = 0; i < weights_.size(); ++i) {
         weights_.data()[i] = weight_generator.generate();
@@ -16,7 +16,7 @@ DenseLayer::DenseLayer(std::size_t size, std::size_t input,
     }
 }
 
-Vector DenseLayer::forward(const Vector& input) {
+Vector Dense::forward(const Vector& input) {
     Vector output(weights_.rows());
 
     for (std::size_t i = 0; i < weights_.rows(); ++i) {
@@ -32,7 +32,7 @@ Vector DenseLayer::forward(const Vector& input) {
     return output;
 }
 
-Vector DenseLayer::backward(const Vector& delta) const {
+Vector Dense::backward(const Vector& delta) const {
     Vector rslt(weights_.cols());
     std::fill(rslt.data(), rslt.data() + rslt.size(), 0.0f);
 
@@ -46,7 +46,7 @@ Vector DenseLayer::backward(const Vector& delta) const {
     return rslt;
 }
 
-void DenseLayer::update(const Vector& input, const Vector& delta, 
+void Dense::update(const Vector& input, const Vector& delta, 
     float learning_rate) {
     for (std::size_t i = 0; i < weights_.rows(); ++i) {
         for (std::size_t j = 0; j < weights_.cols(); ++j) {
@@ -57,4 +57,5 @@ void DenseLayer::update(const Vector& input, const Vector& delta,
     }
 }
 
+} // namespace layer
 } // namespace deepc

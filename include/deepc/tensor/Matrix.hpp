@@ -1,5 +1,5 @@
-#ifndef DEEPC_MATRIX_HPP
-#define DEEPC_MATRIX_HPP
+#ifndef DEEPC_TENSOR_MATRIX_HPP
+#define DEEPC_TENSOR_MATRIX_HPP
 
 #include <cstddef>
 
@@ -37,4 +37,4 @@ private:
 
 } // namespace deepc
 
-#endif // DEEPC_MATRIX_HPP
+#endif // DEEPC_TENSOR_MATRIX_HPP

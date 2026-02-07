@@ -1,5 +1,5 @@
-#include <deepc/Vector.hpp>
-#include <deepc/float.hpp>
+#include <deepc/tensor/Vector.hpp>
+#include <deepc/scalar/precision.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -61,7 +61,8 @@ float Vector::operator[](std::size_t pos) const {
 
 bool Vector::operator==(const Vector& other) const {
     return (size_ != other.size_) ? false : 
-        std::equal(data_, data_ + size_, other.data_, deepc::equal);
+        std::equal(data_, data_ + size_, other.data_, 
+            deepc::scalar::detail::equal);
 }
 
 bool Vector::operator!=(const Vector& other) const {

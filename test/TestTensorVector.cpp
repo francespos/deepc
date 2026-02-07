@@ -1,4 +1,5 @@
-#include <deepc/deepc.hpp>
+#include <deepc/tensor/Vector.hpp>
+#include <utility>
 #include <cassert>
 
 void test_size() {

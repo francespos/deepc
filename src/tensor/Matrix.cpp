@@ -1,5 +1,5 @@
-#include <deepc/Matrix.hpp>
-#include <deepc/float.hpp>
+#include <deepc/tensor/Matrix.hpp>
+#include <deepc/scalar/precision.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -68,7 +68,8 @@ const float* Matrix::operator[](std::size_t row) const {
 
 bool Matrix::operator==(const Matrix& other) const {
     return (rows_ != other.rows_ || cols_ != other.cols_) ? false : 
-        std::equal(data_, data_ + rows_ * cols_, other.data_, deepc::equal);
+        std::equal(data_, data_ + rows_ * cols_, other.data_, 
+            deepc::scalar::detail::equal);
 }
 
 bool Matrix::operator!=(const Matrix& other) const {

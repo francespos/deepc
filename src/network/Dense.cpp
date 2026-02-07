@@ -1,21 +1,22 @@
-#include <deepc/DenseNetwork.hpp>
+#include <deepc/network/Dense.hpp>
 #include <stdexcept>
 
 namespace deepc {
+namespace network {
 
-DenseNetwork::DenseNetwork(std::size_t input) 
+Dense::Dense(std::size_t input) 
     : inputs_{ Vector(input) }, deltas_{ Vector(input) } {}
 
-void DenseNetwork::add_layer(std::size_t size, const Activation& activation, 
-    FloatGenerator& weight_generator, FloatGenerator& bias_generator) {
-    layers_.push_back(DenseLayer(size, inputs_.back().size(), activation,
+void Dense::add_layer(std::size_t size, const Activation& activation, 
+    scalar::Generator& weight_generator, scalar::Generator& bias_generator) {
+    layers_.push_back(layer::Dense(size, inputs_.back().size(), activation,
         weight_generator, bias_generator));
 
     inputs_.push_back(Vector(size));;
     deltas_.push_back(Vector(size));
 }
 
-const Vector& DenseNetwork::forward(const Vector& input) {
+const Vector& Dense::forward(const Vector& input) {
     if (input.size() != inputs_.front().size()) {
         throw std::invalid_argument("deepc: wrong input size");
     }
@@ -29,7 +30,7 @@ const Vector& DenseNetwork::forward(const Vector& input) {
     return inputs_.back();
 }
 
-const Vector& DenseNetwork::backward(const Vector& delta) {
+const Vector& Dense::backward(const Vector& delta) {
     if (delta.size() != deltas_.back().size()) {
         throw std::invalid_argument("deepc: wrong delta size");
     }
@@ -43,10 +44,11 @@ const Vector& DenseNetwork::backward(const Vector& delta) {
     return deltas_.front();
 }
 
-void DenseNetwork::update(float learning_rate) {
+void Dense::update(float learning_rate) {
     for (std::size_t i = 0; i < layers_.size(); ++i) {
         layers_[i].update(inputs_[i], deltas_[i + 1], learning_rate);
     }
 }
 
+} // namespace network
 } // namespace deepc

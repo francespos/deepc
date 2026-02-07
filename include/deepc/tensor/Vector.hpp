@@ -1,5 +1,5 @@
-#ifndef DEEPC_VECTOR_HPP
-#define DEEPC_VECTOR_HPP
+#ifndef DEEPC_TENSOR_VECTOR_HPP
+#define DEEPC_TENSOR_VECTOR_HPP
 
 #include <cstddef>
 
@@ -34,4 +34,4 @@ private:
 
 } // namespace deepc
 
-#endif // DEEPC_VECTOR_HPP
+#endif // DEEPC_TENSOR_VECTOR_HPP

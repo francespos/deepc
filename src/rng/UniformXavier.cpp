@@ -1,7 +1,8 @@
-#include <deepc/UniformXavier.hpp>
+#include <deepc/rng/UniformXavier.hpp>
 #include <cmath>
 
 namespace deepc {
+namespace rng {
 
 UniformXavier::UniformXavier(std::size_t fan_in, std::size_t fan_out, 
     const std::mt19937& rng) 
@@ -14,4 +15,5 @@ float UniformXavier::generate() {
     return dist(rng_);
 }
 
+} // namespace rng
 } // namespace deepc

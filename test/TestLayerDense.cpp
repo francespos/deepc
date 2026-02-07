@@ -1,4 +1,7 @@
-#include <deepc/deepc.hpp>
+#include <deepc/layer/Dense.hpp>
+#include <deepc/rng/UniformXavier.hpp>
+#include <deepc/rng/Zero.hpp>
+#include <deepc/activation/relu.hpp>
 #include <cassert>
 
 // I don't want you to do unit test for know, I just want to be sure DenseLayer
@@ -10,11 +13,11 @@
 
 int main() {    
     std::mt19937 rng(41);
-    deepc::UniformXavier weight_generator(3, 4, rng);
-    deepc::ZeroGenerator bias_generator;
+    deepc::rng::UniformXavier weight_generator(3, 4, rng);
+    deepc::rng::Zero bias_generator;
 
     // Dummy values, initialize layer as you wish
-    deepc::DenseLayer layer(4, 3, deepc::RELU, weight_generator, 
+    deepc::layer::Dense layer(4, 3, deepc::RELU, weight_generator, 
         bias_generator);
 
     // Run class' unit test here:
