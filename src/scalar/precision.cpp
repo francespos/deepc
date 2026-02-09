@@ -2,7 +2,6 @@
 #include <cmath>
 
 namespace deepc {
-namespace scalar {
 namespace detail {
 
 bool equal(float x, float y) {
@@ -12,5 +11,4 @@ bool equal(float x, float y) {
 }
     
 } // namespace detail
-} // namespace scalar
 } // namespace deepc

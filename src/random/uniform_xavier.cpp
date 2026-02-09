@@ -1,12 +1,11 @@
-#include <deepc/rng/UniformXavier.hpp>
+#include <deepc/random/uniform_xavier.hpp>
 #include <cmath>
 
 namespace deepc {
-namespace rng {
 
 UniformXavier::UniformXavier(std::size_t fan_in, std::size_t fan_out, 
-    const std::mt19937& rng) 
-    : fan_in_(fan_in), fan_out_(fan_out), rng_(rng) {}
+    unsigned int seed) 
+    : fan_in_(fan_in), fan_out_(fan_out), rng_(seed) {}
 
 float UniformXavier::generate() {
     auto denom = static_cast<float>(fan_in_ + fan_out_);
@@ -15,5 +14,4 @@ float UniformXavier::generate() {
     return dist(rng_);
 }
 
-} // namespace rng
 } // namespace deepc

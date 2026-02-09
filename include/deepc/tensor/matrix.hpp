@@ -17,8 +17,11 @@ public:
 
     ~Matrix() noexcept;
 
-    float* operator[](std::size_t row);
-    const float* operator[](std::size_t row) const;
+    float* operator[](std::size_t row) { return data_ + row * cols_; }
+    
+    const float* operator[](std::size_t row) const {
+        return data_ + row * cols_; 
+    }
 
     bool operator==(const Matrix& other) const;
     bool operator!=(const Matrix& other) const;

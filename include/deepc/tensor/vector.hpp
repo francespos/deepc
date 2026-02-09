@@ -17,8 +17,8 @@ public:
 
     ~Vector() noexcept;
 
-    float& operator[](std::size_t pos);
-    float operator[](std::size_t pos) const;
+    float& operator[](std::size_t pos) { return data_[pos]; }
+    float operator[](std::size_t pos) const { return data_[pos]; }
 
     bool operator==(const Vector& other) const;
     bool operator!=(const Vector& other) const;

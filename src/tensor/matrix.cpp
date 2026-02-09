@@ -1,7 +1,6 @@
-#include <deepc/tensor/Matrix.hpp>
+#include <deepc/tensor/matrix.hpp>
 #include <deepc/scalar/precision.hpp>
 #include <algorithm>
-#include <cassert>
 
 namespace deepc {
 
@@ -56,20 +55,10 @@ Matrix& Matrix::operator=(Matrix&& other) noexcept {
 
 Matrix::~Matrix() noexcept { delete[] data_; }
 
-float* Matrix::operator[](std::size_t row) {
-    assert(row < rows_);
-    return data_ + row * cols_;
-}
-
-const float* Matrix::operator[](std::size_t row) const {
-    assert(row < rows_);
-    return data_ + row * cols_;
-}
-
 bool Matrix::operator==(const Matrix& other) const {
     return (rows_ != other.rows_ || cols_ != other.cols_) ? false : 
         std::equal(data_, data_ + rows_ * cols_, other.data_, 
-            deepc::scalar::detail::equal);
+            deepc::detail::equal);
 }
 
 bool Matrix::operator!=(const Matrix& other) const {

@@ -1,4 +1,4 @@
-#include <deepc/tensor/Vector.hpp>
+#include <deepc/tensor/vector.hpp>
 #include <utility>
 #include <cassert>
 

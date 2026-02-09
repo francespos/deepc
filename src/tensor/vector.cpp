@@ -1,7 +1,6 @@
-#include <deepc/tensor/Vector.hpp>
+#include <deepc/tensor/vector.hpp>
 #include <deepc/scalar/precision.hpp>
 #include <algorithm>
-#include <cassert>
 
 namespace deepc {
 
@@ -49,20 +48,9 @@ Vector& Vector::operator=(Vector&& other) noexcept {
 
 Vector::~Vector() noexcept { delete[] data_; }
 
-float& Vector::operator[](std::size_t pos) {
-    assert(pos < size_);
-    return data_[pos];
-}
-
-float Vector::operator[](std::size_t pos) const {
-    assert(pos < size_);
-    return data_[pos];
-}
-
 bool Vector::operator==(const Vector& other) const {
     return (size_ != other.size_) ? false : 
-        std::equal(data_, data_ + size_, other.data_, 
-            deepc::scalar::detail::equal);
+        std::equal(data_, data_ + size_, other.data_, deepc::detail::equal);
 }
 
 bool Vector::operator!=(const Vector& other) const {
