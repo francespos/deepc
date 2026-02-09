@@ -6,7 +6,6 @@
 namespace deepc {
 
 struct Layer {
-    explicit Layer() noexcept = default;
     virtual ~Layer() noexcept = default;
 
     virtual Layer* clone() const = 0;

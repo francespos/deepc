@@ -4,7 +4,6 @@
 namespace deepc {
 
 struct NumberGenerator {
-    NumberGenerator() noexcept = default;
     virtual ~NumberGenerator() noexcept = default;
 
     virtual NumberGenerator* clone() const = 0;
