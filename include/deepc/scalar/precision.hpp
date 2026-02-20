@@ -4,8 +4,8 @@
 namespace deepc {
 namespace detail {
 
-constexpr float RTOL = 1e-5f;
-constexpr float ATOL = 1e-8f;
+constexpr float rtol = 1e-5f;
+constexpr float atol = 1e-8f;
 
 bool equal(float x, float y);
 

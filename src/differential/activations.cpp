@@ -6,16 +6,16 @@ namespace detail {
 
 const std::unordered_map<Activation, std::function<float(float)>>
     activation_function = {
-    { Activation::RELU, relu }, 
-    { Activation::SIGMOID, sigmoid }, 
-    { Activation::TANH, tanh }
+    { Activation::relu, relu }, 
+    { Activation::sigmoid, sigmoid }, 
+    { Activation::tanh, tanh }
 };
 
 const std::unordered_map<Activation, std::function<float(float)>>
     activation_derivative = {
-    { Activation::RELU, relu_derivative }, 
-    { Activation::SIGMOID, sigmoid_derivative }, 
-    { Activation::TANH, tanh_derivative }
+    { Activation::relu, relu_derivative }, 
+    { Activation::sigmoid, sigmoid_derivative }, 
+    { Activation::tanh, tanh_derivative }
 };   
 
 float relu(float x) {

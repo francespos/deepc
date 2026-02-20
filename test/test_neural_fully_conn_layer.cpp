@@ -3,6 +3,6 @@
 #include <cassert>
 
 int main() {    
-    deepc::FullyConnLayer layer(4, 3, deepc::Activation::RELU, 
+    deepc::FullyConnLayer layer(4, 3, deepc::Activation::relu, 
         deepc::UniformXavier(3, 4, 41)); 
 }

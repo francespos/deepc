@@ -7,7 +7,7 @@
 namespace deepc {
 
 enum class Activation {
-    RELU, SIGMOID, TANH
+    relu, sigmoid, tanh
 };
 
 namespace detail {
