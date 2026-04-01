@@ -4,7 +4,7 @@
 
 void test_constructor() {
     deepc::Vector v(2);
-    assert(v.size() == 2);
+    assert(v.size() == 2 && v.data() != nullptr);
 }
 
 void test_copy_constructor() {
@@ -13,16 +13,22 @@ void test_copy_constructor() {
     v1[1] = 2.0f;
 
     auto v2 = v1;
-    assert(v2.size() == 2 && v2[0] == 1.0f && v2[1] == 2.0f);
+    assert(v2.size() == 2 && v2.data() != nullptr && v2[0] == 1.0f && 
+        v2[1] == 2.0f);
 }
 
 void test_copy_assigment_operator() {
     deepc::Vector v1(2);
     v1[0] = 1.0f;
     v1[1] = 2.0f;
-    v1 = v1;
-    assert(v1.size() == 2 && v1[0] == 1.0f && v1[1] == 2.0f);
-    // ...
+    assert(&(v1 = v1) == &v1);
+    assert(v1.size() == 2 && v1.data() != nullptr && v1[0] == 1.0f && 
+        v1[1] == 2.0f);
+
+    deepc::Vector v2(3);
+    assert(&(v2 = v1) == &v2);
+    assert(v2.size() == 2 && v2.data() != nullptr && v2.data() != v1.data() && 
+        v2[0] == 1.0f && v2[1] == 2.0f);
 }
 
 void test_move_constructor() {

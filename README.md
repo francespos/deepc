@@ -3,7 +3,7 @@ A deep learning library
 
 ## How to test on Linux
 ```
-git clone https://github.com/deepc-library/deepc.git
+git clone https://github.com/francespos/deepc.git
 cd deepc
 mkdir build 
 cd build 
